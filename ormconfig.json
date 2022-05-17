@@ -1,0 +1,10 @@
+{
+  "type": "mysql",
+  "host": "101.35.5.117",
+  "port": 3306,
+  "username": "flomo",
+  "password": "flome",
+  "database": "flomo",
+  "entities": ["dist/**/*.entity{.ts,.js}"],
+  "synchronize": true
+}
