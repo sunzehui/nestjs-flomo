@@ -1,8 +1,9 @@
+import { UserStatusDTO } from './../user/dto/user-status.dto';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { LoginUserDto } from '@user/dto/login-user.dto';
 import { UserService } from '@user/user.service';
-import _ from 'lodash';
+import * as _ from 'lodash';
 import * as bcrypt from 'bcryptjs';
 
 @Injectable()
@@ -12,7 +13,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async validateUser(loginUserDto: LoginUserDto): Promise<LoginUserDto> {
+  async validateUser(loginUserDto: LoginUserDto): Promise<UserStatusDTO> {
     const username = loginUserDto.username;
     const password = loginUserDto.password;
     if (_.isEmpty(username) || _.isEmpty(password)) {
@@ -22,24 +23,34 @@ export class AuthService {
     if (_.isEmpty(user)) {
       throw new BadRequestException('user not found!');
     }
-    const isValidPwd = bcrypt.compare(user.password, password);
+    const isValidPwd = await bcrypt.compare(password, user.password);
     if (!isValidPwd) {
       throw new BadRequestException('password is not valid!');
     }
-    return user;
+    const sanitizedUser = {
+      id: user.id,
+      username: user.username,
+      memo_count: user.memo_count,
+      day_count: user.day_count,
+      tag_count: user.tag_count,
+      month_sign_id: user.month_sign_id,
+      last_login: user.last_login,
+    };
+    return sanitizedUser;
   }
 
-  async login(loginUserDto: LoginUserDto) {
-    const user = await this.validateUser(loginUserDto);
-    const token = this.createToken(user);
+  async login(userInfo: UserStatusDTO) {
+    const token = this.createToken(userInfo);
+
     return {
-      user,
+      userInfo,
       ...token,
     };
   }
-  createToken({ username }: LoginUserDto) {
-    const token = this.jwtService.sign(username);
-    const expires = process.env.expiresTime || 10000;
+  createToken({ username, id: userId }: UserStatusDTO) {
+    const token = this.jwtService.sign({ username, userId });
+    const expires = process.env.expiresTime;
+
     return {
       token,
       expires,

@@ -4,12 +4,12 @@ import * as bcrypt from 'bcryptjs';
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
-  id: number;
+  id: string;
 
   @Column({ primary: true })
   username: string;
 
-  @Column()
+  @Column({ type: 'varchar' })
   password: string;
 
   @Column()
