@@ -2,10 +2,10 @@ import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
 import { HttpException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
+import { UserStatusDTO } from './dto/user-status.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcryptjs';
-import _ from 'lodash';
-import { JwtService } from '@nestjs/jwt';
+import * as _ from 'lodash';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
@@ -15,26 +15,29 @@ export class UserService {
     @InjectRepository(User)
     private repository: Repository<User>,
   ) {}
-  register(createUserDto: CreateUserDto) {
+  async register(createUserDto: CreateUserDto) {
     const username = createUserDto.username;
     const password = createUserDto.password;
-    
+    const userDO = {
+      username,
+      password,
+      memo_count: 0,
+      day_count: 0,
+      tag_count: 0,
+      month_sign_id: 0,
+      last_login: '',
+    };
+    const user = this.repository.create(userDO);
+    const result = await this.repository.save(user);
+    if (_.isEmpty(result)) {
+      return user;
+    }
+    return {
+      status: true,
+      message: 'ok',
+    };
   }
-
-  async login(loginUserDto: LoginUserDto) {
-    const username = loginUserDto.username;
-    const password = loginUserDto.password;
-    if (_.isEmpty(username) || _.isEmpty(password)) {
-      throw new BadRequestException('user is required!');
-    }
-    const user = await this.repository.findOneBy({ username });
-    if (_.isEmpty(user)) {
-      throw new BadRequestException('user not found!');
-    }
-    const isValidPwd = bcrypt.compare(user.password, password);
-    if (!isValidPwd) {
-      throw new BadRequestException('password is not valid!');
-    }
-    return 
+  findLoginUser(username: string) {
+    return this.repository.findOneBy({ username });
   }
 }
