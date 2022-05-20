@@ -11,6 +11,7 @@ import {
   BadRequestException,
   UseGuards,
   Req,
+  HttpCode,
 } from '@nestjs/common';
 import { Request } from 'express';
 
@@ -24,6 +25,7 @@ declare module 'express' {
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @HttpCode(200)
   @UseGuards(LocalAuthGuard)
   @Post('login')
   login(@Req() req: Request) {
