@@ -18,12 +18,13 @@ export class ArticleService {
     private readonly userService: UserService,
   ) {}
   async create(userId: string, createArticleDto: CreateArticleDto) {
+    const user = await this.userService.findUser(userId);
     const articleDO = {
       title: createArticleDto.title,
       content: createArticleDto.content,
       createTime: new Date().toString(),
       updateTime: new Date().toString(),
-      user: await this.userService.findUser(userId),
+      user,
       tags: [],
     };
     const article = this.repository.create(articleDO);
@@ -33,12 +34,19 @@ export class ArticleService {
       const existTags = await this.tagService.findExistTags(
         createArticleDto.tags,
       );
-      const recivedTags = createArticleDto.tags.map((content) => ({ content }));
+      // 将所有tag重新添加回来
+      existTags.forEach((tag) => {
+        tag.deleteTime = null;
+      });
+      const recivedTags = createArticleDto.tags.map((content) => ({
+        content,
+        user,
+      }));
       const beInsertTags = _.xorBy(recivedTags, existTags, 'content');
       // 将需要添加到数据库的tag添加到article的tags中
-      console.log({ beInsertTags });
+
       const beInsertTagEntities = beInsertTags.map((tag) =>
-        this.tagService.create(tag),
+        this.tagService.rawCreate(tag),
       );
       article.tags = _.uniqBy(
         _.concat(beInsertTagEntities, existTags),

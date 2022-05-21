@@ -1,4 +1,5 @@
 import { Article } from 'src/article/entities/article.entity';
+import { User } from 'src/user/entities/user.entity';
 import {
   Entity,
   Column,
@@ -6,12 +7,13 @@ import {
   ManyToMany,
   DeleteDateColumn,
   Index,
+  ManyToOne,
 } from 'typeorm';
 
 @Entity()
 export class Tag {
   @PrimaryGeneratedColumn()
-  id?: number;
+  id?: string;
 
   @Column()
   @Index({ unique: true })
@@ -25,4 +27,7 @@ export class Tag {
 
   @DeleteDateColumn()
   deleteTime: Date;
+
+  @ManyToOne((type) => User, (user) => user.id)
+  user: User;
 }

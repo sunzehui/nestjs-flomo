@@ -1,3 +1,4 @@
+import { Tag } from 'src/tag/entities/tag.entity';
 import { Article } from './../../article/entities/article.entity';
 import {
   BeforeInsert,
@@ -34,7 +35,10 @@ export class User {
     this.password = await bcrypt.hash(this.password, 10);
   }
   @OneToMany((type) => Article, (article) => article.user)
-  articles: Article;
+  articles: Article[];
+
+  @OneToMany(() => Tag, (tag) => tag.user)
+  tags: Tag[];
 
   @Column()
   last_login: string;
