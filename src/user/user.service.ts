@@ -15,6 +15,9 @@ export class UserService {
     @InjectRepository(User)
     private repository: Repository<User>,
   ) {}
+  async findUser(id: User['id']) {
+    return await this.repository.findOneBy({ id });
+  }
   async register(createUserDto: CreateUserDto) {
     const username = createUserDto.username;
     const password = createUserDto.password;

@@ -47,8 +47,8 @@ export class AuthService {
       ...token,
     };
   }
-  createToken({ username, id: userId }: UserStatusDTO) {
-    const token = this.jwtService.sign({ username, userId });
+  createToken({ username, id }: UserStatusDTO) {
+    const token = this.jwtService.sign({ username, id });
     const expires = process.env.expiresTime;
 
     return {
