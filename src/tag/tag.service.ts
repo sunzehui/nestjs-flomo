@@ -40,6 +40,7 @@ export class TagService {
     let tagEntity = await this.repository.findOne({
       where: { content: tag },
     });
+    // 不存在创建，存在返回
     if (!tagEntity) {
       tagEntity = await this.repository.save({ content: tag });
     }
@@ -49,6 +50,7 @@ export class TagService {
   async insert(tags: string[]) {
     const tagEntities = [];
     for (const tag of tags) {
+      // 查找标签是否存在，最终必返回标签实体
       const tagEntity = await this.findOrCreate(tag);
       await this.repository.save(tagEntity);
       tagEntities.push(tagEntity);

@@ -9,13 +9,14 @@ import {
   JoinTable,
   JoinColumn,
   DeleteDateColumn,
+  BeforeInsert,
 } from 'typeorm';
 @Entity()
 export class Article {
   @PrimaryGeneratedColumn()
   id: string;
 
-  @Column({ length: 255 })
+  @Column({ length: 255, default: '' })
   title: string;
 
   @Column({ default: '', length: 255 })
@@ -46,12 +47,15 @@ export class Article {
   })
   tags: Tag[];
 
-  @Column()
-  createTime: string;
+  @BeforeInsert() initTime() {
+    this.createTime = new Date();
+  }
+  @Column({ type: 'date' })
+  createTime: Date;
 
   @Column({ default: '' })
   updateTime: string;
 
   @Column({ default: false })
-  is_topic:boolean
+  is_topic: boolean;
 }

@@ -1,3 +1,7 @@
+import { ArticleStatisticService } from './../article-statistic/article-statistic.service';
+import { Article } from './entities/article.entity';
+import { User } from '@user/user.decorator';
+import { InjectRepository } from '@nestjs/typeorm';
 import { JwtAuthGuard } from './../auth/guards/jwt-auth.guard';
 import {
   Controller,
@@ -10,21 +14,43 @@ import {
   UseGuards,
   BadRequestException,
   Req,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { ArticleService } from './article.service';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
-import { User } from '@user/user.decorator';
+import { User as UserEntity } from '@user/entities/user.entity';
+import { StatisticService } from 'src/statistic/statistic.service';
+import { Statistic } from 'src/statistic/entities/statistic.entity';
+import { Repository } from 'typeorm';
 
 @Controller('article')
 export class ArticleController {
-  constructor(private readonly articleService: ArticleService) {}
+  constructor(
+    private readonly articleService: ArticleService,
+    @InjectRepository(Statistic)
+    private readonly statisticRepository: Repository<Statistic>,
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
+    @InjectRepository(Article)
+    private readonly articleRepository: Repository<Article>,
+
+    private readonly articleStatisticService: ArticleStatisticService,
+  ) {}
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  async create(@User('id') user, @Body() createArticleDto: CreateArticleDto) {
+  async create(@User('id') userId, @Body() createArticleDto: CreateArticleDto) {
     try {
-      return await this.articleService.create(user, createArticleDto);
+      const { id: articleId } = await this.articleService.create(
+        userId,
+        createArticleDto,
+      );
+      if (!articleId) {
+        return null;
+      }
+      this.articleStatisticService.gridPush(userId, articleId);
     } catch (error) {
       throw new BadRequestException(error.message);
     }

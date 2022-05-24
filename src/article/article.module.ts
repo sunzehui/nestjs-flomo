@@ -1,3 +1,5 @@
+import { ArticleStatisticService } from './../article-statistic/article-statistic.service';
+import { Statistic } from './../statistic/entities/statistic.entity';
 import { User } from '@user/entities/user.entity';
 import { UserService } from '@user/user.service';
 import { Tag } from 'src/tag/entities/tag.entity';
@@ -10,8 +12,8 @@ import { ArticleController } from './article.controller';
 import { Article } from './entities/article.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Article, Tag, User])],
+  imports: [TypeOrmModule.forFeature([Statistic, Article, Tag, User])],
   controllers: [ArticleController],
-  providers: [ArticleService, TagService, UserService],
+  providers: [ArticleService, TagService, UserService, ArticleStatisticService],
 })
 export class ArticleModule {}

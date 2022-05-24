@@ -10,10 +10,17 @@ import { ArticleModule } from './article/article.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LoggerModule } from 'nestjs-pino';
 import { pinoHttpOption } from './logger.config';
+import { StatisticModule } from './statistic/statistic.module';
+import { ArticleStatisticService } from './article-statistic/article-statistic.service';
+import { User } from '@user/entities/user.entity';
+import { Tag } from './tag/entities/tag.entity';
+import { Article } from './article/entities/article.entity';
+import { Statistic } from './statistic/entities/statistic.entity';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot(),
+    TypeOrmModule.forFeature([Statistic, Article, Tag, User]),
     LoggerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -29,8 +36,9 @@ import { pinoHttpOption } from './logger.config';
     UserModule,
     AuthModule,
     ArticleModule,
+    StatisticModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, ArticleStatisticService],
 })
 export class AppModule {}
