@@ -1,0 +1,3 @@
+interface Requestr {
+  name: string;
+}

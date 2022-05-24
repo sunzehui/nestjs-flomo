@@ -51,4 +51,7 @@ export class Article {
 
   @Column({ default: '' })
   updateTime: string;
+
+  @Column({ default: false })
+  is_topic:boolean
 }
