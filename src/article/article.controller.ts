@@ -9,6 +9,7 @@ import {
   Delete,
   UseGuards,
   BadRequestException,
+  Req,
 } from '@nestjs/common';
 import { ArticleService } from './article.service';
 import { CreateArticleDto } from './dto/create-article.dto';
@@ -31,12 +32,9 @@ export class ArticleController {
 
   @UseGuards(JwtAuthGuard)
   @Get('user')
-  async findUserArticle(@User('id') user) {
-    try {
-      return await this.articleService.findAll(user);
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
+  async findUserArticle(@User('id') user, @Req() req) {
+    const inTrash = req?.deleted === '1' || false;
+    return await this.articleService.findAll(user, inTrash);
   }
 
   @Get(':id')

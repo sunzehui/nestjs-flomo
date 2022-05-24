@@ -57,10 +57,11 @@ export class ArticleService {
     return await this.repository.save(article);
   }
 
-  findAll(user: string) {
+  findAll(user: string, inTrash = false) {
     return this.repository.find({
       where: { user: { id: user } },
       relations: ['user', 'tags'],
+      withDeleted: inTrash,
     });
   }
 
