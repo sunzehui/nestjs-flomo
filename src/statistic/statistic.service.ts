@@ -57,7 +57,6 @@ export class StatisticService {
       }
       daily_memo_count: 日记录数 区间 [now - 78 , now + 5] userid  select
      */
-
     const DateRange = (date: Date) =>
       Between(subDays(date, 78), addDays(date, 5));
     // 时间在区间范围内的文章数量
@@ -71,9 +70,18 @@ export class StatisticService {
       .select('date,sum(count)', 'count')
       .getRawMany();
 
-    return _.map(StatisticList, (item) => {
-      return { [item.date]: item.count };
-    });
+    const memo_count = await this.findAll(userId);
+    const daily_grid = _.reduce(
+      StatisticList,
+      (acc, item) => {
+        return _.assign(acc, { [item.date]: _.toNumber(item.count) });
+      },
+      {},
+    );
+    return {
+      memo_count,
+      daily_grid,
+    };
   }
   findOne(id: number) {
     return `This action returns a #${id} statistic`;

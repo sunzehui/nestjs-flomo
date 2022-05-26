@@ -29,11 +29,7 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   login(@Req() req: Request) {
-    try {
-      return this.authService.login(req.user);
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
+    return this.authService.login(req.user);
   }
 
   @UseGuards(JwtAuthGuard)

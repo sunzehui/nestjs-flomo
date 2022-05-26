@@ -1,3 +1,4 @@
+import { StatisticService } from './../../statistic/statistic.service';
 import { AuthService } from './../auth.service';
 import { Strategy } from 'passport-local';
 import { PassportStrategy } from '@nestjs/passport';

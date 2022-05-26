@@ -1,3 +1,4 @@
+import { StatisticService } from './../statistic/statistic.service';
 import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
 import { HttpException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';

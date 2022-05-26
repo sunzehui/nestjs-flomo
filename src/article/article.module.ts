@@ -1,3 +1,4 @@
+import { StatisticService } from './../statistic/statistic.service';
 import { ArticleStatisticService } from './../article-statistic/article-statistic.service';
 import { Statistic } from './../statistic/entities/statistic.entity';
 import { User } from '@user/entities/user.entity';
