@@ -29,12 +29,6 @@ import { Repository } from 'typeorm';
 export class ArticleController {
   constructor(
     private readonly articleService: ArticleService,
-    @InjectRepository(Statistic)
-    private readonly statisticRepository: Repository<Statistic>,
-    @InjectRepository(UserEntity)
-    private readonly userRepository: Repository<UserEntity>,
-    @InjectRepository(Article)
-    private readonly articleRepository: Repository<Article>,
 
     private readonly articleStatisticService: ArticleStatisticService,
   ) {}
@@ -57,7 +51,7 @@ export class ArticleController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('user')
+  @Get()
   async findUserArticle(@User('id') user, @Req() req) {
     const inTrash = req?.deleted === '1' || false;
     return await this.articleService.findAll(user, inTrash);

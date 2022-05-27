@@ -10,13 +10,14 @@ import { PassportModule } from '@nestjs/passport';
 import { UserModule } from '@user/user.module';
 import { AuthController } from './auth.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import 'dotenv/config';
 @Module({
   imports: [
     UserModule,
     PassportModule,
     JwtModule.register({
-      secret: '123',
-      signOptions: { expiresIn: process.env.expireTime },
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: process.env.JWT_EXPIRE },
     }),
   ],
   controllers: [AuthController],

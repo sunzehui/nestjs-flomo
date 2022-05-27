@@ -13,8 +13,8 @@ import { ArticleController } from './article.controller';
 import { Article } from './entities/article.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Statistic, Article, Tag, User])],
+  imports: [TypeOrmModule.forFeature([Statistic, Article, Tag])],
   controllers: [ArticleController],
-  providers: [ArticleService, TagService, UserService, ArticleStatisticService],
+  providers: [ArticleService, ArticleStatisticService],
 })
 export class ArticleModule {}

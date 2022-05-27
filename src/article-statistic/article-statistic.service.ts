@@ -12,9 +12,9 @@ export class ArticleStatisticService {
     private readonly articleRepository: Repository<Article>,
     @InjectRepository(Statistic)
     private readonly statisticRepository: Repository<Statistic>,
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
-  ) {}
+  ) // @InjectRepository(User)
+  // private readonly userRepository: Repository<User>,
+  {}
 
   async gridPush(userId: string, articleId: string) {
     // 有记录则increament 1 否则创建初始值1
@@ -28,12 +28,18 @@ export class ArticleStatisticService {
       statistic.count++;
       this.statisticRepository.save(statistic);
     } else {
-      const newStatistic = new Statistic();
-      newStatistic.user = await this.userRepository.findOneBy({ id: userId });
-      newStatistic.article = await this.articleRepository.findOneBy({
-        id: articleId,
-      });
-      newStatistic.count = 1;
+      const newStatistic = {
+        user: { id: userId },
+        article: await this.articleRepository.findOneBy({
+          id: articleId,
+        }),
+        count: 1,
+      };
+      // newStatistic.user = ({ id: userId });
+      // newStatistic.article = await this.articleRepository.findOneBy({
+      //   id: articleId,
+      // });
+      // newStatistic.count = 1;
       this.statisticRepository.save(newStatistic);
     }
     return statistic;

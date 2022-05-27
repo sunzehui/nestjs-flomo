@@ -43,7 +43,6 @@ export class AuthService {
 
   async login(userInfo: UserStatusDTO) {
     const token = this.createToken(userInfo);
-    console.log(token);
 
     return {
       userInfo,

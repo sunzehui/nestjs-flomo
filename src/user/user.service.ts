@@ -15,7 +15,8 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private repository: Repository<User>,
-  ) {}
+  ) // private readonly statisticService: StatisticService,
+  {}
   async findUser(id: User['id']) {
     return await this.repository.findOneBy({ id });
   }
