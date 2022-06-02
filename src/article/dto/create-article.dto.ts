@@ -3,9 +3,6 @@ import { IsArray, IsString, MaxLength, maxLength } from 'class-validator';
 
 export class CreateArticleDto {
   @IsString()
-  title: string;
-
-  @IsString()
   @MaxLength(255)
   content: string;
 

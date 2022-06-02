@@ -16,6 +16,7 @@ import {
   Req,
   Inject,
   forwardRef,
+  Query,
 } from '@nestjs/common';
 import { ArticleService } from './article.service';
 import { CreateArticleDto } from './dto/create-article.dto';
@@ -48,9 +49,15 @@ export class ArticleController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  async findUserArticle(@User('id') user, @Req() req) {
-    const inTrash = req?.deleted === '1' || false;
-    return await this.articleService.findAll(user, inTrash);
+  async findUserArticle(
+    @User('id') user,
+    @Query('tag') tag: string,
+    @Query('inTrash') inTrash: boolean,
+  ) {
+    return await this.articleService.findAll(user, {
+      tag,
+      inTrash,
+    });
   }
 
   @Get(':id')

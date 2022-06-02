@@ -63,11 +63,12 @@ export class TagService {
 
   async findAll(userId: string) {
     // 去查该用户下的标签
-    const q = this.artcleRepo
-      .createQueryBuilder('article')
+    const q = this.repository
+      .createQueryBuilder('tag')
       .where('article.userId = :userId', { userId })
+      .andWhere('tag.deleteTime IS NULL')
       .andWhere('article.deleteTime IS NULL')
-      .leftJoin('article.tags', 'tag')
+      .leftJoinAndSelect('tag.articles', 'article')
       .getMany();
     return await q;
   }
@@ -80,8 +81,11 @@ export class TagService {
     return this.repository.findOneBy({ id });
   }
 
-  async update(id: string, updateTagDto: UpdateTagDto) {
-    const updateStatus = await this.repository.update({ id }, updateTagDto);
+  async update(content: string, updateTagDto: UpdateTagDto) {
+    const updateStatus = await this.repository.update(
+      { content },
+      updateTagDto,
+    );
     if (updateStatus.affected === 0) {
       throw new NotAcceptableException('更新失败');
     }

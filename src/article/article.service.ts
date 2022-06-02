@@ -18,7 +18,6 @@ export class ArticleService {
   ) {}
   async create(userId: string, createArticleDto: CreateArticleDto) {
     const articleDO = {
-      title: createArticleDto.title,
       content: createArticleDto.content,
       createTime: new Date().toString(),
       updateTime: new Date().toString(),
@@ -53,9 +52,12 @@ export class ArticleService {
     return await this.repository.save(article);
   }
 
-  findAll(user: string, inTrash = false) {
+  findAll(user: string, _query: { inTrash: boolean; tag: string }) {
+    const inTrash = _query.inTrash;
+    const query = { user: { id: user }, tags: undefined };
+    query.tags = _query.tag ? { content: _query.tag } : void 0;
     return this.repository.find({
-      where: { user: { id: user } },
+      where: { ...query },
       relations: ['user', 'tags'],
       withDeleted: inTrash,
     });
@@ -76,7 +78,6 @@ export class ArticleService {
     const tags = await this.tagInsert(updateArticleDto.tags);
     const articleDO: Partial<Article> = {
       id: id,
-      title: updateArticleDto.title,
       content: updateArticleDto.content,
       updateTime: new Date().toString(),
       tags,

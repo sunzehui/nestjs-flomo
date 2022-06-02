@@ -10,7 +10,9 @@ import {
   JoinColumn,
   DeleteDateColumn,
   BeforeInsert,
+  BeforeUpdate,
 } from 'typeorm';
+import * as moment from 'moment';
 @Entity()
 export class Article {
   @PrimaryGeneratedColumn()
@@ -48,12 +50,16 @@ export class Article {
   tags: Tag[];
 
   @BeforeInsert() initTime() {
-    this.createTime = new Date();
+    this.createTime = moment().utc().format('YYYY-MM-DD HH:mm:ss');
+    this.updateTime = moment().utc().format('YYYY-MM-DD HH:mm:ss');
   }
-  @Column({ type: 'date' })
-  createTime: Date;
+  @Column({ type: 'datetime' })
+  createTime: string;
 
-  @Column({ default: '' })
+  @BeforeUpdate() time() {
+    this.updateTime = moment().utc().format('YYYY-MM-DD HH:mm:ss');
+  }
+  @Column({ type: 'datetime' })
   updateTime: string;
 
   @Column({ default: false })
