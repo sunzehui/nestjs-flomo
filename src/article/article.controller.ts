@@ -20,10 +20,6 @@ import {
 import { ArticleService } from './article.service';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
-import { User as UserEntity } from '@user/entities/user.entity';
-import { StatisticService } from 'src/statistic/statistic.service';
-import { Statistic } from 'src/statistic/entities/statistic.entity';
-import { Repository } from 'typeorm';
 
 @Controller('article')
 export class ArticleController {

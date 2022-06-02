@@ -1,3 +1,4 @@
+import { Article } from './../article/entities/article.entity';
 import { UserService } from './../user/user.service';
 import { ArticleService } from './../article/article.service';
 import {
@@ -17,6 +18,8 @@ export class TagService {
   constructor(
     @InjectRepository(Tag)
     private repository: Repository<Tag>,
+    @InjectRepository(Article)
+    private artcleRepo: Repository<Article>,
     private userService: UserService,
   ) {}
 
@@ -60,10 +63,11 @@ export class TagService {
 
   async findAll(userId: string) {
     // 去查该用户下的标签
-    const q = this.repository
-      .createQueryBuilder('tag')
-      .where('user.id = :userId', { userId })
-      .leftJoin('tag.user', 'user')
+    const q = this.artcleRepo
+      .createQueryBuilder('article')
+      .where('article.userId = :userId', { userId })
+      .andWhere('article.deleteTime IS NULL')
+      .leftJoin('article.tags', 'tag')
       .getMany();
     return await q;
   }

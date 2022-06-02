@@ -92,6 +92,7 @@ export class ArticleService {
     if (!tagEntity) {
       tagEntity = await this.tagRepo.save({ content: tag });
     }
+
     return tagEntity;
   }
 
@@ -105,11 +106,15 @@ export class ArticleService {
     }
     return tagEntities;
   }
-
+  /**
+   *
+   * @param id 文章id
+   * @returns 删除成功实体
+   * @description 删除文章，保留标签
+   */
   async remove(id: string) {
     const article = await this.repository.findOne({
       where: { id },
-      relations: ['tags'],
     });
     if (_.isEmpty(article)) {
       throw new UnprocessableEntityException('文章不存在！');

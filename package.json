@@ -33,6 +33,7 @@
     "@types/passport-jwt": "^3.0.6",
     "@types/passport-local": "^1.0.34",
     "bcryptjs": "^2.4.3",
+    "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
     "lodash": "^4.17.21",
     "lodash-es": "^4.17.21",

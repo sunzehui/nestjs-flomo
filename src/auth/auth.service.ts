@@ -58,4 +58,9 @@ export class AuthService {
       expires,
     };
   }
+  recordLogin(userInfo: UserStatusDTO) {
+    const { id } = userInfo;
+
+    return this.userService.recordLogin(id);
+  }
 }

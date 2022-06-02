@@ -9,14 +9,14 @@ import * as bcrypt from 'bcryptjs';
 import * as _ from 'lodash';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { Repository } from 'typeorm';
+import { QueryFailedError, Repository } from 'typeorm';
+import { ResultData } from '@utils/result';
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private repository: Repository<User>,
-  ) // private readonly statisticService: StatisticService,
-  {}
+  ) {}
   async findUser(id: User['id']) {
     return await this.repository.findOneBy({ id });
   }
@@ -32,15 +32,27 @@ export class UserService {
       month_sign_id: 0,
       last_login: '',
     };
-    const user = this.repository.create(userDO);
-    const result = await this.repository.save(user);
-    if (_.isEmpty(result)) {
-      return user;
+    try {
+      const user = this.repository.create(userDO);
+      const result = await this.repository.save(user);
+      if (_.isEmpty(result)) {
+        return user;
+      }
+      return ResultData.ok(result);
+    } catch (error) {
+      if (error instanceof QueryFailedError) {
+        throw new HttpException('用户名已存在', HttpStatus.BAD_REQUEST);
+      } else {
+        throw error;
+      }
     }
-    return {
-      status: true,
-      message: 'ok',
-    };
+  }
+  async recordLogin(userId: string) {
+    const last_login = new Date().toISOString();
+
+    return await this.repository.update(userId, {
+      last_login,
+    });
   }
   findLoginUser(username: string) {
     return this.repository.findOneBy({ username });
