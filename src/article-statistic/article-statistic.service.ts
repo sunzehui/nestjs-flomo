@@ -5,23 +5,20 @@ import { Article } from 'src/article/entities/article.entity';
 import { Statistic } from 'src/statistic/entities/statistic.entity';
 import { Repository } from 'typeorm';
 
+import * as moment from 'moment';
 @Injectable()
 export class ArticleStatisticService {
   constructor(
-    @InjectRepository(Article)
-    private readonly articleRepository: Repository<Article>,
     @InjectRepository(Statistic)
-    private readonly statisticRepository: Repository<Statistic>,
-  ) // @InjectRepository(User)
-  // private readonly userRepository: Repository<User>,
-  {}
+    private readonly statisticRepository: Repository<Statistic>, // @InjectRepository(User) // private readonly userRepository: Repository<User>,
+  ) {}
 
   async gridPush(userId: string, articleId: string) {
     // 有记录则increament 1 否则创建初始值1
     const statistic = await this.statisticRepository.findOne({
       where: {
         user: { id: userId },
-        article: { id: articleId },
+        date: moment().format('YYYY-MM-DD'),
       },
     });
     if (statistic) {
@@ -30,10 +27,11 @@ export class ArticleStatisticService {
     } else {
       const newStatistic = {
         user: { id: userId },
-        article: await this.articleRepository.findOneBy({
+        article: {
           id: articleId,
-        }),
+        },
         count: 1,
+        date: moment().format('YYYY-MM-DD'),
       };
       // newStatistic.user = ({ id: userId });
       // newStatistic.article = await this.articleRepository.findOneBy({

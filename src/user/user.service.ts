@@ -1,3 +1,4 @@
+import { AuthService } from './../auth/auth.service';
 import { StatisticService } from './../statistic/statistic.service';
 import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
 import { HttpException } from '@nestjs/common';
@@ -38,6 +39,7 @@ export class UserService {
       if (_.isEmpty(result)) {
         return user;
       }
+
       return ResultData.ok(result);
     } catch (error) {
       if (error instanceof QueryFailedError) {

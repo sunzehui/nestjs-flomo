@@ -8,7 +8,7 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-
+import * as moment from 'moment';
 @Entity()
 export class Statistic {
   @PrimaryGeneratedColumn()
@@ -18,10 +18,11 @@ export class Statistic {
   count: number;
 
   @BeforeInsert() initTime() {
-    this.date = new Date();
+    this.date = moment().format('YYYY-MM-DD');
+    console.log('date', this.date);
   }
   @Column({ type: 'date' })
-  date: Date;
+  date: string;
 
   @ManyToOne((type) => User, (user) => user.id)
   user: User;

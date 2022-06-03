@@ -50,14 +50,14 @@ export class Article {
   tags: Tag[];
 
   @BeforeInsert() initTime() {
-    this.createTime = moment().utc().format('YYYY-MM-DD HH:mm:ss');
-    this.updateTime = moment().utc().format('YYYY-MM-DD HH:mm:ss');
+    this.createTime = moment().format('YYYY-MM-DD HH:mm:ss');
+    this.updateTime = moment().format('YYYY-MM-DD HH:mm:ss');
   }
   @Column({ type: 'datetime' })
   createTime: string;
 
   @BeforeUpdate() time() {
-    this.updateTime = moment().utc().format('YYYY-MM-DD HH:mm:ss');
+    this.updateTime = moment().format('YYYY-MM-DD HH:mm:ss');
   }
   @Column({ type: 'datetime' })
   updateTime: string;

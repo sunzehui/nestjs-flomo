@@ -7,6 +7,5 @@
   "database": "flomo",
   "entities": ["dist/**/*.entity{.ts,.js}"],
   "synchronize": true,
-  "dateStrings": true,
-  "timezone": "+00:00"
+  "dateStrings": true
 }

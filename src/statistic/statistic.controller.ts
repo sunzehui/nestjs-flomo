@@ -31,6 +31,7 @@ export class StatisticController {
     return await this.statisticService.findAll(userId);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('grid')
   async findOne(@User('id') userId: string) {
     return await this.statisticService.gird(userId);

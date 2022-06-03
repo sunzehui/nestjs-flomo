@@ -58,6 +58,7 @@ export class ArticleService {
     query.tags = _query.tag ? { content: _query.tag } : void 0;
     return this.repository.find({
       where: { ...query },
+      order: { updateTime: 'DESC' },
       relations: ['user', 'tags'],
       withDeleted: inTrash,
     });
