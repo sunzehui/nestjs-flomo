@@ -1,5 +1,5 @@
 import { Between } from 'typeorm';
-import { subDays, addDays } from 'date-fns';
+import { subDays, addDays ,format} from 'date-fns';
 
 import { Tag } from './../tag/entities/tag.entity';
 import { Article } from './../article/entities/article.entity';
@@ -74,7 +74,8 @@ export class StatisticService {
     const daily_grid = _.reduce(
       StatisticList,
       (acc, item) => {
-        return _.assign(acc, { [item.date]: _.toNumber(item.count) });
+	      const date = format(item.date,'yyyy-MM-dd');
+        return _.assign(acc, { [date]: _.toNumber(item.count) });
       },
       {},
     );

@@ -4,7 +4,7 @@ import {
   SerializedRequest,
   SerializedResponse,
 } from 'pino-std-serializers';
-export function pinoHttpOption(envDevMode = 'development') {
+export function pinoHttpOption(envDevMode = 'development') :any{
   return {
     customAttributeKeys: {
       req: '请求信息',
@@ -34,13 +34,6 @@ export function pinoHttpOption(envDevMode = 'development') {
           status: _res.statusCode,
         };
         return santizedRes;
-      },
-      // 自定义错误日志
-      err(_err: SerializedError) {
-        const santizedErr = {
-          ..._err,
-        };
-        return santizedErr;
       },
     },
     transport: {

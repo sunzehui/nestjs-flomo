@@ -18,9 +18,6 @@ export class Article {
   @PrimaryGeneratedColumn()
   id: string;
 
-  @Column({ length: 255, default: '' })
-  title: string;
-
   @Column({ default: '', length: 255 })
   content: string;
 
