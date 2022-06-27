@@ -36,11 +36,11 @@ export class Article {
   @JoinTable({
     name: 'article_tag', // 此关系的联结表的表名
     joinColumn: {
-      name: 'tag',
+      name: 'article',
       referencedColumnName: 'id',
     },
     inverseJoinColumn: {
-      name: 'article',
+      name: 'tag',
       referencedColumnName: 'id',
     },
   })
