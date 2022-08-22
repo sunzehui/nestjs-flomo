@@ -11,7 +11,7 @@ async function bootstrap() {
     // bufferLogs: true,
     // logger: false,
   });
-  // app.useLogger(app.get(Logger));
+  app.useLogger(app.get(Logger));
   const configService = app.get(ConfigService);
   // 全局注册拦截器
   app.useGlobalInterceptors(new TransformInterceptor());

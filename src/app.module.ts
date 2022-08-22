@@ -21,13 +21,13 @@ import connectionCfg from '../ormconfig';
   imports: [
     TypeOrmModule.forRoot(connectionCfg),
     TypeOrmModule.forFeature([Statistic, Article, Tag, User]),
-    //LoggerModule.forRootAsync({
-     // imports: [ConfigModule],
-      //inject: [ConfigService],
-      //useFactory: async (configService: ConfigService) => {
-       // return { pinoHttp: pinoHttpOption(configService.get('NODE_ENV')) };
-      //},
-    //}),
+    LoggerModule.forRootAsync({
+     imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => {
+       return { pinoHttp: pinoHttpOption(configService.get('NODE_ENV')) };
+      },
+    }),
 
     ConfigModule.forRoot({
       isGlobal: true,

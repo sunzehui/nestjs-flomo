@@ -1,10 +1,10 @@
 import { DataSourceOptions } from 'typeorm'
 const ormCfg = {
 "type": "mysql",
-"host": "0.0.0.0",
+"host": "mysql",
 "port": 3306,
-"username": "flomo",
-"password": "flomo",
+"username": "root",
+"password": "123456",
 "database": "flomo",
 "entities": ["dist/**/*.entity{.ts,.js}"],
 "synchronize": true,
