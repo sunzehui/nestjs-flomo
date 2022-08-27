@@ -1,4 +1,6 @@
 version: '3.0'
+volumes:
+  app-volume: {}
 services:
   mysql:
     container_name: mysql
@@ -10,7 +12,6 @@ services:
       - ./src/core/sql:/docker-entrypoint-initdb.d/
     ports:
       - 3307:3306
-
   website:
     container_name: nginx
     image: daocloud.io/library/nginx:latest # 使用官方镜像
@@ -19,7 +20,7 @@ services:
     # 挂载目录
     volumes:
       - ./vhosts.conf:/etc/nginx/conf.d/default.conf
-      - ./web/dist:/usr/share/nginx/html/
+      - app-volume:/usr/share/nginx/html
 
   server:
     # 用来指定一个包含Dockerfile文件的路径。一般是当前目录. 。Fig将build并生成一个随机命名的镜像
@@ -37,3 +38,5 @@ services:
       DB_HOST: "mysql"
     depends_on:
       - mysql
+    volumes:
+      - app-volume:/frontend-build/dist
