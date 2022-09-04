@@ -9,7 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { ArticleModule } from './article/article.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LoggerModule } from 'nestjs-pino';
-import { pinoHttpOption } from './logger.config';
+import { pinoHttpOption } from './core/logger.config';
 import { StatisticModule } from './statistic/statistic.module';
 import { ArticleStatisticService } from './article-statistic/article-statistic.service';
 import { User } from '@user/entities/user.entity';

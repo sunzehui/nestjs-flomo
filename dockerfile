@@ -10,7 +10,7 @@ RUN yarn config set registry https://registry.npm.taobao.org/
 RUN git clone https://github.com/sunzehui/vue3-flomo.git ./
 RUN yarn
 RUN yarn build
-
+RUN rm -rf ./node_modules
 WORKDIR /backend-build
 
 COPY . .
