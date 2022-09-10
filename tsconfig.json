@@ -12,11 +12,22 @@
     "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
-    
-    "paths":{ 
-      "@user/*": ["src/user/*"],
-      "@auth/*": ["src/auth/*"],
-      "@utils/*": ["src/utils/*"],
+    "paths": {
+      "@user/*": [
+        "src/user/*"
+      ],
+      "@auth/*": [
+        "src/auth/*"
+      ],
+      "@utils/*": [
+        "src/utils/*"
+      ],
+      "@modules/*": [
+        "src/modules/*"
+      ],
+      "@/*": [
+        "src/*"
+      ]
     }
   }
 }
