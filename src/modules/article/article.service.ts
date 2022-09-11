@@ -21,8 +21,6 @@ export class ArticleService {
     async create(userId: string, createArticleDto: CreateArticleDto) {
         const articleDO = {
             content: createArticleDto.content,
-            createTime: new Date().toString(),
-            updateTime: new Date().toString(),
             user: {id: userId},
             tags: [],
         };
