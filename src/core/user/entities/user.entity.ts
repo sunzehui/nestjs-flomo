@@ -14,8 +14,11 @@ export class User {
     @PrimaryGeneratedColumn()
     id: string;
 
-    @Column({unique: true})
+    @Column({unique:true, type: 'varchar'})
     username: string;
+
+    @Column({type: 'varchar', charset:'utf8mb4',default:'浮墨用户'})
+    nickname: string;
 
     @Column({type: 'varchar'})
     password: string;

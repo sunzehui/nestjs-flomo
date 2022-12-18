@@ -35,9 +35,5 @@ export class AuthController {
         return isLogin;
     }
 
-    @UseGuards(JwtAuthGuard)
-    @Get('profile')
-    me(@Req() req: Request) {
-        return req.user;
-    }
+
 }

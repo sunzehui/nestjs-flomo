@@ -40,18 +40,12 @@ export class AuthService {
     }
 
     async login(userInfo: UserStatusDTO) {
-        const token = this.createToken(userInfo);
-
-        return {
-            userInfo,
-            token,
-        };
+        return this.createToken(userInfo);
     }
 
     createToken({username, id}: UserStatusDTO) {
         const token = this.jwtService.sign({username, id});
-        const expires = process.env.expireTime;
-
+        const expires = process.env.JWT_EXPIRE;
         return {
             token,
             expires,
@@ -60,7 +54,6 @@ export class AuthService {
 
     recordLogin(userInfo: UserStatusDTO) {
         const {id} = userInfo;
-
         return this.userService.recordLogin(id);
     }
 }

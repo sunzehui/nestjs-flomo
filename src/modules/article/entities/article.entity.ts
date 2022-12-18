@@ -19,7 +19,7 @@ export class Article {
     @PrimaryGeneratedColumn()
     id: string;
 
-    @Column({default: '', length: 255})
+    @Column({type: 'varchar', charset:'utf8mb4',default: '', length: 255,})
     content: string;
 
     //   关联user和tag;
@@ -55,8 +55,7 @@ export class Article {
     time() {
         this.updateTime = moment().format('YYYY-MM-DD HH:mm:ss');
     }
-
-    @Column({type: 'datetime', default: null})
+    @Column({type: 'datetime',nullable:true, default: ()=>'CURRENT_TIMESTAMP'})
     updateTime: string;
 
     @Column({default: false})

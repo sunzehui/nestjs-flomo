@@ -72,8 +72,7 @@ export class StatisticService {
             .select('date,sum(count)', 'count')
             .getRawMany();
 
-        const memo_count = await this.findAll(userId);
-        const daily_grid = _.reduce(
+        return _.reduce(
             StatisticList,
             (acc, item) => {
                 const date = format(item.date, 'yyyy-MM-dd');
@@ -81,10 +80,7 @@ export class StatisticService {
             },
             {},
         );
-        return {
-            memo_count,
-            daily_grid,
-        };
+
     }
 
     findOne(id: number) {

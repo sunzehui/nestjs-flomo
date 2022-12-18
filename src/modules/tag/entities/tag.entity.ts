@@ -15,7 +15,7 @@ export class Tag {
     @PrimaryGeneratedColumn()
     id?: string;
 
-    @Column()
+    @Column({type: 'varchar', charset:'utf8mb4'})
     @Index({unique: true})
     content: string;
 

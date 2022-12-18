@@ -16,7 +16,9 @@ import { User } from '../../core/user/user.decorator';
 
 @Controller('statistic')
 export class StatisticController {
-  constructor(private readonly statisticService: StatisticService) {}
+  constructor(
+    private readonly statisticService: StatisticService
+  ) {}
 
   @UseGuards(JwtAuthGuard)
   @Post()
@@ -28,6 +30,7 @@ export class StatisticController {
   @UseGuards(JwtAuthGuard)
   @Get()
   async findAll(@User('id') userId: string) {
+
     return await this.statisticService.findAll(userId);
   }
 
