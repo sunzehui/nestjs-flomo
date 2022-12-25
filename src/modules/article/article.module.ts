@@ -1,6 +1,6 @@
 import {ArticleStatisticService} from '../article-statistic/article-statistic.service';
 import {Statistic} from '../statistic/entities/statistic.entity';
-import {Tag} from 'src/modules/tag/entities/tag.entity';
+import {Tag} from '@modules/tag/entities/tag.entity';
 import {TypeOrmModule} from '@nestjs/typeorm';
 import {Module} from '@nestjs/common';
 import {ArticleService} from './article.service';

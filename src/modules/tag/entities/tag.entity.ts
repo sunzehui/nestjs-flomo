@@ -1,5 +1,5 @@
-import {Article} from 'src/modules/article/entities/article.entity';
-import {User} from '../../../core/user/entities/user.entity';
+import {Article} from '@modules/article/entities/article.entity';
+import {User} from "@/core/user/entities/user.entity";
 import {
     Entity,
     Column,

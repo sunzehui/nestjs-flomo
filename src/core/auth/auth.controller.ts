@@ -1,11 +1,9 @@
-import {JwtAuthGuard} from './guards/jwt-auth.guard';
 import {UserStatusDTO} from '../user/dto/user-status.dto';
 import {LocalAuthGuard} from './guards/local-auth.guard';
 import {AuthService} from './auth.service';
 
 import {
     Controller,
-    Get,
     Post,
     UseGuards,
     Req,

@@ -63,6 +63,7 @@
     "@types/passport-jwt": "^3.0.6",
     "@types/passport-local": "^1.0.34",
     "@types/supertest": "^2.0.11",
+    "jest-environment-node": "^27.4.4",
     "jest": "^27.3.0",
     "nest-cli": "^0.0.5",
     "source-map-support": "^0.5.20",
@@ -80,9 +81,22 @@
       "json",
       "ts"
     ],
-    "rootDir": "src",
-    "testRegex": ".*\\.spec\\.ts$",
+    "moduleNameMapper": {
+      "@user/(.*)": [
+        "<rootDir>/src/user/$1"
+      ],
+      "@auth/(.*)": [
+        "<rootDir>/src/auth/$1"
+      ],
+      "@(utils|modules)/(.*)": [
+        "<rootDir>/src/$1/$2"
+      ],
+      "@/(.*)$": "<rootDir>/src/$1"
+    },
+    "rootDir": "./",
+    "testRegex": ".*\\.e2e-spec\\.ts$",
     "transform": {
+
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "collectCoverageFrom": [

@@ -1,5 +1,5 @@
-import {Tag} from 'src/modules/tag/entities/tag.entity';
-import {Article} from '../../../modules/article/entities/article.entity';
+import {Tag} from '@modules/tag/entities/tag.entity';
+import {Article} from "@modules/article/entities/article.entity";
 import {
     BeforeInsert,
     Column,
@@ -20,7 +20,7 @@ export class User {
     @Column({type: 'varchar', charset:'utf8mb4',default:'浮墨用户'})
     nickname: string;
 
-    @Column({type: 'varchar'})
+    @Column({type: 'varchar', select: false})
     password: string;
 
     @Column()

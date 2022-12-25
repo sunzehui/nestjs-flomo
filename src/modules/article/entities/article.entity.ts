@@ -1,5 +1,5 @@
-import {User} from '../../../core/user/entities/user.entity';
-import {Tag} from 'src/modules/tag/entities/tag.entity';
+import {User} from "@/core/user/entities/user.entity";
+import {Tag} from '@modules/tag/entities/tag.entity';
 import {
     Entity,
     Column,

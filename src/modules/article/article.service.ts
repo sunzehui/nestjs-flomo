@@ -1,4 +1,3 @@
-// import { Transactional, OrmContext } from '@malagu/typeorm/lib/node';
 import {In, Repository} from 'typeorm';
 import {Injectable, UnprocessableEntityException} from '@nestjs/common';
 import {CreateArticleDto} from './dto/create-article.dto';
@@ -6,7 +5,7 @@ import {UpdateArticleDto} from './dto/update-article.dto';
 import {Article} from './entities/article.entity';
 import {InjectRepository} from '@nestjs/typeorm';
 import * as _ from 'lodash';
-import {Tag} from 'src/modules/tag/entities/tag.entity';
+import {Tag} from '@modules/tag/entities/tag.entity';
 
 @Injectable()
 export class ArticleService {
@@ -52,7 +51,7 @@ export class ArticleService {
         return await this.repository.save(article);
     }
 
-    findAll(user: string, _query: { inTrash: boolean; tag: string }) {
+    findAll(user: string, _query?: { inTrash: boolean; tag: string }) {
         const inTrash = _query.inTrash;
         const query = {user: {id: user}, tags: undefined};
         query.tags = _query.tag ? {content: _query.tag} : void 0;

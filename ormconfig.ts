@@ -10,7 +10,7 @@ let ormCfg = {
     database: process.env.DB_NAME || 'flomo',
     entities: ['dist/**/*.entity{.ts,.js}'],
     synchronize: true,
-    datestrings: true,
+    dateStrings: true,
 } as DataSourceOptions;
 // 线上预览模式
 const isPreview = process.env.NODE_ENV;
@@ -24,7 +24,7 @@ if (isPreview) {
         database: 'flomo',
         entities: ['dist/**/*.entity{.ts,.js}'],
         synchronize: true,
-        datestrings: true,
+        dateStrings: true,
     } as DataSourceOptions;
 }
 export default ormCfg;

@@ -58,14 +58,17 @@ export class UserService {
   }
 
   findLoginUser(username: string) {
-    return this.repository.findOneBy({ username });
+    return this.repository.findOne({
+      where: { username },
+      select: ["id", "username", "password", "nickname","last_login"]
+    });
   }
   async updateUser(userId:string,updateUserDto:UpdateUserDto){
     const userDo = {
       nickname:updateUserDto.nickname,
     }
     const res = await this.repository.update({id:userId},userDo)
-    if(res.affected>=0) return true;
-    return false
+    return res.affected >= 0;
+
   }
 }
