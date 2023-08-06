@@ -1,32 +1,36 @@
+import { Config } from '@/types/config-service';
+import { getLogLevel } from '@utils/logger';
 import {Request, Response} from 'express';
-import {SerializedRequest, SerializedResponse,} from 'pino-std-serializers';
+import { Options } from 'pino-http';
 
-export function pinoHttpOption(envDevMode = 'development'): any {
+type EnvMode = Config['NODE_ENV'];
+export function pinoHttpOption(envMode: EnvMode = 'development'): Options {
     return {
         customAttributeKeys: {
-            req: '请求信息',
-            res: '响应信息',
-            err: '错误信息',
-            responseTime: '响应时间(ms)',
+            req: 'request:',
+            res: 'response:',
+            err: 'error:',
+            responseTime: 'time(ms)',
         },
-        level: envDevMode !== 'production' ? 'debug' : 'info',
         customLogLevel(_: Request, res: Response) {
-            if (res.statusCode <= 300) return 'info';
-            return 'error';
+            if(envMode === 'production'){
+                return 'silent'
+            }
+            return getLogLevel(res.statusCode);
         },
         serializers: {
             // 自定义请求日志
-            req(_req: SerializedRequest) {
+            req(_req) {
                 const santizedReq = {
                     method: _req.method,
                     url: _req.url,
-                    params: (_req.raw as Request).params,
-                    query: (_req.raw as Request).query,
-                    body: (_req.raw as Request).body,
+                    params: _req.raw .params,
+                    query: _req.raw .query,
+                    body: _req.raw .body,
                 };
                 return santizedReq;
             },
-            res(_res: SerializedResponse) {
+            res(_res: Response) {
                 return {
                     status: _res.statusCode,
                 };
@@ -37,7 +41,7 @@ export function pinoHttpOption(envDevMode = 'development'): any {
             target: 'pino-pretty',
             // 美化插件配置
             options:
-                envDevMode === 'development'
+                envMode === 'development'
                     ? {
                         colorize: true, // 带颜色输出
                         levelFirst: true,
