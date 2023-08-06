@@ -19,7 +19,7 @@ export class Article {
     @PrimaryGeneratedColumn()
     id: string;
 
-    @Column({type: 'varchar', charset:'utf8mb4',default: '', length: 255,})
+    @Column({type: 'text', charset:'utf8mb4', default: '', })
     content: string;
 
     //   关联user和tag;
@@ -46,7 +46,6 @@ export class Article {
         },
     })
     tags: Tag[];
-
 
     @Column({type: 'datetime', default: () => 'CURRENT_TIMESTAMP'})
     createTime: string;
