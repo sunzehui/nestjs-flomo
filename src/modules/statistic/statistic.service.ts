@@ -1,5 +1,5 @@
 import {Between} from 'typeorm';
-import {subDays, addDays, format} from 'date-fns';
+import {subDays, addDays, format, parseISO} from 'date-fns';
 
 import {Tag} from '@modules/tag/entities/tag.entity';
 import {Article} from '@modules/article/entities/article.entity';
@@ -75,7 +75,7 @@ export class StatisticService {
         return _.reduce(
             StatisticList,
             (acc, item) => {
-                const date = format(item.date, 'yyyy-MM-dd');
+                const date = format(parseISO(item.date), 'yyyy-MM-dd');
                 return _.assign(acc, {[date]: _.toNumber(item.count)});
             },
             {},
