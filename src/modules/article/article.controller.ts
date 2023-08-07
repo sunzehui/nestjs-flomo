@@ -1,4 +1,3 @@
-import {ArticleStatisticService} from '../article-statistic/article-statistic.service';
 import {User} from '@/core/user/user.decorator';
 import {JwtAuthGuard} from '@/core/auth/guards/jwt-auth.guard';
 import {
@@ -21,7 +20,6 @@ import {UpdateArticleDto} from './dto/update-article.dto';
 export class ArticleController {
     constructor(
         private readonly articleService: ArticleService,
-        private readonly articleStatisticService: ArticleStatisticService,
     ) {
     }
 
@@ -36,7 +34,6 @@ export class ArticleController {
             if (!articleId) {
                 return null;
             }
-            await this.articleStatisticService.gridPush(userId, articleId);
         } catch (error) {
             throw new BadRequestException(error.message);
         }

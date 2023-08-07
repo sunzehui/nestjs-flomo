@@ -10,11 +10,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LoggerModule } from 'nestjs-pino';
 import { pinoHttpOption } from './core/logger.config';
 import { StatisticModule } from '@modules/statistic/statistic.module';
-import { ArticleStatisticService } from '@modules/article-statistic/article-statistic.service';
 import { User } from './core/user/entities/user.entity';
 import { Tag } from '@modules/tag/entities/tag.entity';
 import { Article } from '@modules/article/entities/article.entity';
-import { Statistic } from '@modules/statistic/entities/statistic.entity';
 import connectionCfg from '../ormconfig';
 import { Config } from './types/config-service';
 
@@ -23,7 +21,7 @@ const envFilePath =['.env', `.env.${process.env.NODE_ENV}`]
 @Module({
     imports: [
         TypeOrmModule.forRoot(connectionCfg),
-        TypeOrmModule.forFeature([Statistic, Article, Tag, User]),
+        TypeOrmModule.forFeature([Article, Tag, User]),
         LoggerModule.forRootAsync({
             imports: [ConfigModule],
             inject: [ConfigService],
@@ -44,7 +42,7 @@ const envFilePath =['.env', `.env.${process.env.NODE_ENV}`]
         StatisticModule,
     ],
     controllers: [AppController],
-    providers: [AppService, ArticleStatisticService],
+    providers: [AppService],
 })
 export class AppModule {
 }

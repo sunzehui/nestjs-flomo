@@ -34,8 +34,8 @@ export class UserController {
   @Get("profile")
   async me(@User("id") userId: string) {
     const userInfo = await this.userService.findUser(userId);
-    const dailyGrid = await this.statisticService.gird(userId);
-    const userRecord = await this.statisticService.findAll(userId);
+    const dailyGrid = await this.statisticService.getGirdWithDate(userId);
+    const userRecord = await this.statisticService.getUserStatistic(userId);
     return {
       userInfo, userRecord: {
         ...userRecord, dailyGrid

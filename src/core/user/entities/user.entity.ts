@@ -48,4 +48,8 @@ export class User {
 
     @Column()
     last_login: string;
+
+    @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
+    createTime: string;
+
 }
