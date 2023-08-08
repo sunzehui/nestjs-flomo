@@ -20,20 +20,15 @@ import {UpdateArticleDto} from './dto/update-article.dto';
 export class ArticleController {
     constructor(
         private readonly articleService: ArticleService,
-    ) {
-    }
+    ) {}
 
     @UseGuards(JwtAuthGuard)
     @Post()
     async create(@User('id') userId, @Body() createArticleDto: CreateArticleDto) {
         try {
-            const {id: articleId} = await this.articleService.create(
-                userId,
-                createArticleDto,
-            );
-            if (!articleId) {
-                return null;
-            }
+            const articleEntity = await this.articleService
+                .create(userId, createArticleDto);
+            return articleEntity
         } catch (error) {
             throw new BadRequestException(error.message);
         }
