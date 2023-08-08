@@ -14,19 +14,19 @@
     "skipLibCheck": true,
     "paths": {
       "@user/*": [
-        "src/user/*"
+        "./src/user/*"
       ],
       "@auth/*": [
-        "src/auth/*"
+        "./src/auth/*"
       ],
       "@utils/*": [
-        "src/utils/*"
+        "./src/utils/*"
       ],
       "@modules/*": [
-        "src/modules/*"
+        "./src/modules/*"
       ],
       "@/*": [
-        "src/*"
+        "./src/*"
       ]
     }
   }
