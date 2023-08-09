@@ -18,15 +18,14 @@ async function bootstrap() {
     // 全局注册拦截器
     app.useGlobalInterceptors(new TransformInterceptor());
     app.useGlobalPipes(new ValidationPipe());
-    await app.listen(configService.get('port'));
+    await app.listen(process.env.PORT || 3000);
+    // await app.listen(configService.get('port'));
     return configService;
 }
 
 bootstrap().then((configService) => {
     console.log(
-        `🤩 应用程序接口地址： http://localhost:${configService.get<number>(
-            'port',
-        )}`,
+        `🤩 应用程序接口地址： http://localhost:${process.env.PORT}`,
     );
     console.log('🚀 服务应用已经成功启动！');
 });
