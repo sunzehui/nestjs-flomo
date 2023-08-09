@@ -18,8 +18,13 @@ async function bootstrap() {
     // 全局注册拦截器
     app.useGlobalInterceptors(new TransformInterceptor());
     app.useGlobalPipes(new ValidationPipe());
+    // 兼容zeabur
+    const isZeabur = process.env.NODE_ENV === 'zeabur';
+    if (isZeabur) {
+        app.enableCors();
+        app.setGlobalPrefix('api');
+    }
     await app.listen(process.env.PORT || 3000);
-    // await app.listen(configService.get('port'));
     return configService;
 }
 
