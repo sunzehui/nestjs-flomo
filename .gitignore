@@ -398,3 +398,4 @@ Temporary Items
 dist
 
 ormconfig.json
+src\lib\sqlite.db
