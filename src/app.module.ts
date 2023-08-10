@@ -15,6 +15,9 @@ import { Tag } from '@modules/tag/entities/tag.entity';
 import { Article } from '@modules/article/entities/article.entity';
 import connectionCfg from '../ormconfig';
 import { Config } from './types/config-service';
+import { ShareModule } from './modules/share/share.module';
+import { ShareController } from './modules/share/share.controller';
+import { ShareService } from './modules/share/share.service';
 
 const envFilePath =['.env', `.env.${process.env.NODE_ENV}`]
 
@@ -40,6 +43,7 @@ const envFilePath =['.env', `.env.${process.env.NODE_ENV}`]
         AuthModule,
         ArticleModule,
         StatisticModule,
+        ShareModule,
     ],
     controllers: [AppController],
     providers: [AppService],

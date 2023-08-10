@@ -51,10 +51,11 @@ export class ArticleService {
         return await this.repository.save(article);
     }
 
-    findAll(user: string, _query?: { inTrash: boolean; tag: string }) {
+    findAll(user: string, _query: { inTrash: boolean; tag: string } = {inTrash: false, tag: ''}) {
         const inTrash = _query.inTrash;
         const query = {user: {id: user}, tags: undefined};
         query.tags = _query.tag ? {content: _query.tag} : void 0;
+        
         return this.repository.find({
             where: {...query},
             order: {updateTime: 'DESC'},
