@@ -59,4 +59,6 @@ export class Article {
 
     @Column({default: false})
     is_topic: boolean;
+
+
 }
