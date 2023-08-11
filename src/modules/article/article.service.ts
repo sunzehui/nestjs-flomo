@@ -56,6 +56,20 @@ export class ArticleService {
     return await this.repository.save(article);
   }
 
+  resolveFilePath(article: ArticleEntity) {
+ // 将每个article的每个file的url加上前缀
+    const prefix = this.configService.get('IMG_SERVER');
+    
+    const images = article.files.map((file) => {
+        file.filePath = `${prefix}/${file.filePath}`;
+        return file;
+      });
+      return {
+        ...article,
+        images,
+      }
+      
+}
   async findAll(
     user: string,
     _query: { inTrash: boolean; tag: string } = { inTrash: false, tag: '' },
@@ -70,19 +84,17 @@ export class ArticleService {
       relations: ['user', 'tags', 'files'],
       withDeleted: inTrash,
     });
-    // 将每个article的每个file的url加上前缀
-    const prefix = this.configService.get('IMG_SERVER');
-    articleList.forEach((article) => {
-      article.files.forEach((file) => {
-        file.filePath = `${prefix}/${file.filePath}`;
-      });
+   
+    return articleList.map((article) => {
+        return this.resolveFilePath(article); 
     });
-    return articleList;
   }
 
-  findOne(id: string) {
-    return this.repository.findOne({ where: { id }, relations: ['tags'] });
+  async findOne(id: string) {
+    const article = await this.repository.findOne({ where: { id }, relations: ['tags','user','files'] });
+    return this.resolveFilePath(article);
   }
+  
 
   // 物理存在，包括软删除
   findExistTags(tags: String[]) {

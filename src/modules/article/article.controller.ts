@@ -28,7 +28,8 @@ export class ArticleController {
         userId,
         createArticleDto,
       );
-      return articleEntity;
+
+      return await this.articleService.findOne(articleEntity.id);
     } catch (error) {
       throw new BadRequestException(error.message);
     }
