@@ -1,21 +1,21 @@
-import { BadRequestException, Controller, Get, Param, Query } from '@nestjs/common';
+import {
+  BadRequestException,
+  Controller,
+  Get,
+  Param,
+  Query,
+} from '@nestjs/common';
 import { ShareService } from './share.service';
 
 @Controller('share')
 export class ShareController {
+  constructor(private readonly shareService: ShareService) {}
 
-  constructor(
-    private readonly shareService: ShareService
-  ) {
-  }
-  
   @Get('/user')
-  async findUserShared(
-    @Query('user_id') userId: string
-  ) {
-    try{
+  async findUserShared(@Query('user_id') userId: string) {
+    try {
       return await this.shareService.findUserShared(userId);
-    }catch(error){
+    } catch (error) {
       throw new BadRequestException(error.message);
     }
   }

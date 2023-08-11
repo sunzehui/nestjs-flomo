@@ -1,4 +1,3 @@
-
 export enum HttpStatus {
   Continue = 100,
   OK = 200,
@@ -14,4 +13,3 @@ export enum HttpStatus {
   BadGateway = 502,
   ServiceUnavailable = 503,
 }
-

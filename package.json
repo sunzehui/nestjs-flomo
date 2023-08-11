@@ -8,10 +8,10 @@
     "prebuild": "rimraf dist",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\"",
-    "dev": "NODE_ENV=development && nest start --watch",
+    "dev": "cross-env NODE_ENV=development  nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "NODE_ENV=production node dist/src/main",
-    "start:preview": "nest build && NODE_ENV=preview node dist/src/main"
+    "start:prod": "cross-env NODE_ENV=production  node dist/src/main",
+    "start:preview": "nest build cross-env NODE_ENV=preview node dist/src/main"
   },
   "dependencies": {
     "@nestjs/cli": "^8.2.6",
@@ -27,6 +27,7 @@
     "bcryptjs": "^2.4.3",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
+    "cross-env": "^7.0.3",
     "date-fns": "^2.28.0",
     "dotenv": "^16.0.1",
     "lodash": "^4.17.21",

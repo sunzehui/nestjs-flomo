@@ -1,33 +1,33 @@
-import {Article} from '@modules/article/entities/article.entity';
-import {User} from "@/core/user/entities/user.entity";
+import { ArticleEntity } from '@modules/article/entities/article.entity';
+import { User } from '@/core/user/entities/user.entity';
 import {
-    Entity,
-    Column,
-    PrimaryGeneratedColumn,
-    ManyToMany,
-    DeleteDateColumn,
-    Index,
-    ManyToOne,
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToMany,
+  DeleteDateColumn,
+  Index,
+  ManyToOne,
 } from 'typeorm';
 
 @Entity()
 export class Tag {
-    @PrimaryGeneratedColumn()
-    id?: string;
+  @PrimaryGeneratedColumn()
+  id?: string;
 
-    @Column({type: 'varchar', charset:'utf8mb4'})
-    @Index({unique: true})
-    content: string;
+  @Column({ type: 'varchar', charset: 'utf8mb4' })
+  @Index({ unique: true })
+  content: string;
 
-    @Column({default: false})
-    is_topics: boolean;
+  @Column({ default: false })
+  is_topics: boolean;
 
-    @ManyToMany(() => Article, (article) => article.tags)
-    articles: Article[];
+  @ManyToMany(() => ArticleEntity, (article) => article.tags)
+  articles: ArticleEntity[];
 
-    @DeleteDateColumn()
-    deleteTime: Date;
+  @DeleteDateColumn()
+  deleteTime: Date;
 
-    @ManyToOne(() => User, (user) => user.id)
-    user: User;
+  @ManyToOne(() => User, (user) => user.id)
+  user: User;
 }

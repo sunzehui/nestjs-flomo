@@ -7,6 +7,6 @@ export class CreateFileDto {
   @IsString()
   filename: string;
 
-  file: any
+  file: any;
   // Add other properties as needed
 }

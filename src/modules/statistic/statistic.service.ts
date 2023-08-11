@@ -1,69 +1,66 @@
-import {Between} from 'typeorm';
-import {subDays, addDays, format, parseISO} from 'date-fns';
+import { Between } from 'typeorm';
+import { subDays, addDays, format, parseISO } from 'date-fns';
 
-import {Tag} from '@modules/tag/entities/tag.entity';
-import {Article} from '@modules/article/entities/article.entity';
-import {User} from '@/core/user/entities/user.entity';
-import {Injectable} from '@nestjs/common';
-import {Repository} from 'typeorm';
-import {InjectRepository} from '@nestjs/typeorm';
+import { Tag } from '@modules/tag/entities/tag.entity';
+import { ArticleEntity } from '@modules/article/entities/article.entity';
+import { User } from '@/core/user/entities/user.entity';
+import { Injectable } from '@nestjs/common';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 import * as _ from 'lodash';
 import { daysPassedSince } from '@utils/date';
 
 @Injectable()
 export class StatisticService {
-    constructor(
-        @InjectRepository(Article)
-        private readonly articleRepository: Repository<Article>,
-        @InjectRepository(Tag)
-        private readonly tagRepository: Repository<Tag>,
-        @InjectRepository(User)
-        private readonly userRepository: Repository<User>,
-    ) {}
+  constructor(
+    @InjectRepository(ArticleEntity)
+    private readonly articleRepository: Repository<ArticleEntity>,
+    @InjectRepository(Tag)
+    private readonly tagRepository: Repository<Tag>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+  ) {}
 
+  async getUserStatistic(userId: string) {
+    const tagCount = await this.tagRepository.countBy({
+      user: { id: userId },
+    });
+    const memoCount = await this.articleRepository.countBy({
+      user: { id: userId },
+      deleteTime: null,
+    });
+    const userEntity = await this.userRepository.findOneBy({ id: userId });
+    // 用户注册时间-当前时间
+    const day = daysPassedSince(new Date(userEntity.createTime));
+    return {
+      tagCount,
+      memoCount,
+      day: day > 0 ? day : 1,
+    };
+  }
+  async getGirdWithDate(userId: string) {
+    const DateRange = (date: Date) =>
+      Between(subDays(date, 78), addDays(date, 5));
+    // 时间在区间范围内的文章数量
 
-    async getUserStatistic(userId: string) {
-        const tagCount = await this.tagRepository.countBy({
-            user: {id: userId},
-        });
-        const memoCount = await this.articleRepository.countBy({
-            user: {id: userId},
-            deleteTime: null,
-        });
-        const userEntity = await this.userRepository.findOneBy({id: userId});
-        // 用户注册时间-当前时间
-        const day = daysPassedSince( new Date(userEntity.createTime ))
-        return {
-            tagCount,
-            memoCount,
-            day: day > 0 ? day : 1,
-        };
-    }
-    async getGirdWithDate(userId: string) {
-         const DateRange = (date: Date) =>
-            Between(subDays(date, 78), addDays(date, 5));
-        // 时间在区间范围内的文章数量
+    const StatisticList = await this.articleRepository
+      .createQueryBuilder('article')
+      .groupBy('DATE(createTime)')
+      .where({
+        createTime: DateRange(new Date()),
+        user: { id: userId },
+      })
+      .select('article.*')
+      .addSelect('count(article.id)', 'count')
+      .getRawMany();
 
-        
-        const StatisticList = await this.articleRepository
-            .createQueryBuilder('article')
-            .groupBy('DATE(createTime)')
-            .where({
-                createTime: DateRange(new Date()),
-                user: {id: userId},
-            })
-            .select('article.*')
-            .addSelect('count(article.id)','count')
-            .getRawMany();
-
-        return _.reduce(
-            StatisticList,
-            (acc, item) => {
-                const date = format(parseISO(item.createTime), 'yyyy-MM-dd');
-                return _.assign(acc, { [date]: _.toNumber(item.count) });
-            },
-            {},
-        );
-    }
-  
+    return _.reduce(
+      StatisticList,
+      (acc, item) => {
+        const date = format(parseISO(item.createTime), 'yyyy-MM-dd');
+        return _.assign(acc, { [date]: _.toNumber(item.count) });
+      },
+      {},
+    );
+  }
 }

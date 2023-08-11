@@ -7,15 +7,15 @@ export class ShareService {
   constructor(
     private readonly articleService: ArticleService,
     private readonly userService: UserService,
-  ){}
-  
-  async findUserShared(userId:string) {
+  ) {}
+
+  async findUserShared(userId: string) {
     const userInfo = await this.userService.findUser(userId);
-    const usersMemo = await this.articleService.findAll(userId)
+    const usersMemo = await this.articleService.findAll(userId);
 
     return {
       userInfo,
-      usersMemo
-    }
+      usersMemo,
+    };
   }
 }

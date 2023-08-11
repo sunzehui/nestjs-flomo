@@ -1,5 +1,5 @@
-import { HttpStatus } from "@/types/logger";
-import { Level } from "pino";
+import { HttpStatus } from '@/types/logger';
+import { Level } from 'pino';
 
 export function getLogLevel(status: HttpStatus): Level {
   switch (status) {
@@ -7,20 +7,20 @@ export function getLogLevel(status: HttpStatus): Level {
     case HttpStatus.OK:
     case HttpStatus.Created:
     case HttpStatus.NoContent:
-      return "info";
+      return 'info';
     case HttpStatus.MovedPermanently:
     case HttpStatus.Found:
-      return "debug";
+      return 'debug';
     case HttpStatus.BadRequest:
     case HttpStatus.Unauthorized:
     case HttpStatus.Forbidden:
     case HttpStatus.NotFound:
-      return "warn";
+      return 'warn';
     case HttpStatus.InternalServerError:
     case HttpStatus.BadGateway:
     case HttpStatus.ServiceUnavailable:
-      return "error";
+      return 'error';
     default:
-      return "info"; // Default to info level if the HttpStatus is not recognized
+      return 'info'; // Default to info level if the HttpStatus is not recognized
   }
 }
