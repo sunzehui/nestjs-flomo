@@ -1,4 +1,4 @@
-import { Module, } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TagModule } from '@modules/tag/tag.module';
@@ -12,41 +12,39 @@ import { pinoHttpOption } from './core/logger.config';
 import { StatisticModule } from '@modules/statistic/statistic.module';
 import { User } from './core/user/entities/user.entity';
 import { Tag } from '@modules/tag/entities/tag.entity';
-import { Article } from '@modules/article/entities/article.entity';
+import { ArticleEntity } from '@modules/article/entities/article.entity';
 import connectionCfg from '../ormconfig';
 import { Config } from './types/config-service';
 import { ShareModule } from './modules/share/share.module';
 import { FileManagementModule } from './modules/file-management/file-management.module';
 
-const envFilePath =['.env', `.env.${process.env.NODE_ENV}`]
+const envFilePath = ['.env', `.env.${process.env.NODE_ENV}`];
 
 @Module({
-    imports: [
-        TypeOrmModule.forRoot(connectionCfg),
-        TypeOrmModule.forFeature([Article, Tag, User]),
-        LoggerModule.forRootAsync({
-            imports: [ConfigModule],
-            inject: [ConfigService],
-            useFactory: async (configService: ConfigService<Config>) => {
-                const env = configService.get<Config['NODE_ENV']>('NODE_ENV');
-                return { pinoHttp: pinoHttpOption(env) };
-            },
-        }),
-
-        ConfigModule.forRoot({
-            isGlobal: true,
-            envFilePath
-        }),
-        TagModule,
-        UserModule,
-        AuthModule,
-        ArticleModule,
-        StatisticModule,
-        ShareModule,
-        FileManagementModule,
-    ],
-    controllers: [AppController],
-    providers: [AppService],
+  imports: [
+    TypeOrmModule.forRoot(connectionCfg),
+    TypeOrmModule.forFeature([ArticleEntity, Tag, User]),
+    LoggerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService<Config>) => {
+        const env = configService.get<Config['NODE_ENV']>('NODE_ENV');
+        return { pinoHttp: pinoHttpOption(env) };
+      },
+    }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath,
+    }),
+    TagModule,
+    UserModule,
+    AuthModule,
+    ArticleModule,
+    StatisticModule,
+    ShareModule,
+    FileManagementModule,
+  ],
+  controllers: [AppController],
+  providers: [AppService],
 })
-export class AppModule {
-}
+export class AppModule {}

@@ -6,6 +6,7 @@ import * as path from 'path';
 import { Repository } from 'typeorm';
 import { FileEntity } from './entities/file.entity';
 import { CreateFileDto } from './dto/create-file.dto';
+import { join } from 'lodash';
 
 @Injectable()
 export class FileManagementService {
@@ -13,14 +14,14 @@ export class FileManagementService {
     private configService: ConfigService,
     @InjectRepository(FileEntity)
     private fileRepository: Repository<FileEntity>,
-  ) { }
+  ) {}
 
   private getUploadsPath(userId: string) {
-    const uploadsPath = path.join(process.cwd(), 'uploads', userId);
+    const uploadsPath = path.join(process.cwd(), 'uploads', userId.toString());
     return uploadsPath;
   }
-  private getRelativeUploadsPath(userId: string,filename:string) {
-    const uploadsPath = path.join('uploads', userId, filename);
+  private getRelativeUploadsPath(userId: string, filename: string) {
+    const uploadsPath = join(['uploads', userId.toString(), filename], '/');
     return uploadsPath;
   }
 
@@ -33,14 +34,16 @@ export class FileManagementService {
     return this.getFileList(userId);
   }
   async getFileById(userId: string, fileId: number) {
-    const file = await this.fileRepository.findOne({ where: { userId, id: fileId } });
+    const file = await this.fileRepository.findOne({
+      where: { userId, id: fileId },
+    });
     if (!file) {
       throw new NotFoundException(`File not found with ID: ${fileId}`);
     }
     return file;
   }
   async uploadFile(createFileDto: CreateFileDto) {
-    const { userId, filename ,file} = createFileDto;
+    const { userId, filename, file } = createFileDto;
     const uploadsPath = this.getUploadsPath(userId);
 
     // Ensure the uploads directory exists
@@ -70,7 +73,9 @@ export class FileManagementService {
       fs.unlinkSync(filePath);
 
       // Delete file record from the database
-      const file = await this.fileRepository.findOne({ where: { userId, filename } });
+      const file = await this.fileRepository.findOne({
+        where: { userId, filename },
+      });
       if (file) {
         await this.fileRepository.remove(file);
       }

@@ -7,12 +7,10 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "nest start",
-    "dev": "nest start --watch",
-    "start:dev": "nest start --watch",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "dev": "NODE_ENV=development && nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/src/main",
+    "start:prod": "NODE_ENV=production node dist/src/main",
     "start:preview": "nest build && NODE_ENV=preview node dist/src/main"
   },
   "dependencies": {
