@@ -8,5 +8,7 @@ export class CreateFileDto {
   filename: string;
 
   file: any;
-  // Add other properties as needed
+
+  @IsString()
+  md5: string;
 }

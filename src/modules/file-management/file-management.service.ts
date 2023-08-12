@@ -16,12 +16,12 @@ export class FileManagementService {
     private fileRepository: Repository<FileEntity>,
   ) {}
 
-  private getUploadsPath(userId: string) {
-    const uploadsPath = path.join(process.cwd(), 'uploads', userId.toString());
+  private getUploadsPath() {
+    const uploadsPath = path.join(process.cwd(), 'uploads');
     return uploadsPath;
   }
-  private getRelativeUploadsPath(userId: string, filename: string) {
-    const uploadsPath = join(['uploads', userId.toString(), filename], '/');
+  private getRelativeUploadsPath(filename: string) {
+    const uploadsPath = join(['uploads', filename], '/');
     return uploadsPath;
   }
 
@@ -42,9 +42,30 @@ export class FileManagementService {
     }
     return file;
   }
+
+  async isFileExist(md5: string): Promise<FileEntity> {
+    const existingFile = await this.fileRepository.findOne({ where: { md5 } });
+
+
+    return existingFile; 
+  }
+  // 直接将已存在的文件记录到该用户的文件列表中
+  async saveUserFileQuickly(userId: string, fileEntity: FileEntity) {
+    return await this.fileRepository.save({
+      ...fileEntity,
+      userId,
+      id: undefined,
+      md5: undefined,
+    })
+  }
   async uploadFile(createFileDto: CreateFileDto) {
-    const { userId, filename, file } = createFileDto;
-    const uploadsPath = this.getUploadsPath(userId);
+    const { userId, filename, file , md5} = createFileDto;
+
+    const fileExists = await this.isFileExist(md5);
+    if (fileExists) {
+      return fileExists
+    }
+    const uploadsPath = this.getUploadsPath();
 
     // Ensure the uploads directory exists
     if (!fs.existsSync(uploadsPath)) {
@@ -55,7 +76,7 @@ export class FileManagementService {
     // Save file to the uploads directory
     fs.writeFileSync(destinationPath, file.buffer);
 
-    const relativePath = this.getRelativeUploadsPath(userId, filename);
+    const relativePath = this.getRelativeUploadsPath(filename);
     // Save file information to the database
     const fileEntity = this.fileRepository.create({
       userId,
@@ -66,7 +87,7 @@ export class FileManagementService {
   }
 
   async deleteFile(userId: string, filename: string) {
-    const uploadsPath = this.getUploadsPath(userId);
+    const uploadsPath = this.getUploadsPath();
     const filePath = path.join(uploadsPath, filename);
 
     if (fs.existsSync(filePath)) {

@@ -46,26 +46,39 @@ export class FileManagementController {
     const file = await this.fileManagementService.getFileById(userId, fileId);
     return { file };
   }
+
+  @Get('is-exist/:md5')
+  @UseGuards(JwtAuthGuard)
+  async isFileExist(@Param('md5') md5: string,@User('id') userId: string) {
+    const file = await this.fileManagementService.isFileExist(md5);
+    if(!file){
+      return false
+    }
+    // 如果存在该文件，则存储一条用户文件记录
+    const fileEntity = await this.fileManagementService.saveUserFileQuickly(userId, file);
+
+    return fileEntity;
+  }
+
   @Post()
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(
-    @Req() request: Request,
     @UploadedFile() file,
     @User('id') userId: string,
   ) {
     try {
       const fileExt = file.originalname.split('.').pop();
+      const fileMD5 = calculateMD5(file.buffer);
       const createFileDto: CreateFileDto = {
         userId: userId.toString(),
-        filename: `${calculateMD5(file.buffer)}.${fileExt}`,
+        filename: `${fileMD5}.${fileExt}`,
+        md5: fileMD5,
         file,
       };
       const uploadResult = await this.fileManagementService.uploadFile(
         createFileDto,
       );
-      const host = request.get('host'); // 获取主机名
-      const isHttps = request.secure;
       const imgServerUrl = this.configService.get('IMG_SERVER');
       return {
         ...uploadResult,

@@ -34,4 +34,7 @@ export class FileEntity {
   @ManyToOne(() => ArticleEntity, (article) => article.files) // Define many-to-one relationship
   @JoinColumn({ name: 'article_id' })
   article: ArticleEntity;
+
+  @Column({unique: true}) 
+  md5: string;
 }
