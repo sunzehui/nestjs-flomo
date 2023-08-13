@@ -3,7 +3,7 @@ import { HttpException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as _ from 'lodash';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from './entities/user.entity';
+import { UserEntity } from './entities/user.entity';
 import { QueryFailedError, Repository } from 'typeorm';
 import { ResultData } from '@utils/result';
 import { UpdateUserDto } from '@/core/user/dto/update-user.dto';
@@ -11,11 +11,11 @@ import { UpdateUserDto } from '@/core/user/dto/update-user.dto';
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(User)
-    private repository: Repository<User>,
+    @InjectRepository(UserEntity)
+    private repository: Repository<UserEntity>,
   ) {}
 
-  async findUser(id: User['id']) {
+  async findUser(id: UserEntity['id']) {
     return await this.repository.findOneBy({ id });
   }
 

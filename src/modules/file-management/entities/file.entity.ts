@@ -6,11 +6,14 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
 } from 'typeorm';
 import { join as lJoin } from 'lodash';
 import { Transform } from 'class-transformer';
 import { ConfigService } from '@nestjs/config';
 import { Injectable } from '@nestjs/common';
+import { UserEntity } from '@/core/user/entities/user.entity';
 
 @Entity()
 @Injectable()
@@ -22,8 +25,11 @@ export class FileEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  userId: string;
+  // Add this relationship
+  
+  @ManyToMany(() => UserEntity, (user) => user.files)
+  users: UserEntity[];
+
 
   @Column()
   filename: string;

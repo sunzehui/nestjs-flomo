@@ -10,20 +10,21 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LoggerModule } from 'nestjs-pino';
 import { pinoHttpOption } from './core/logger.config';
 import { StatisticModule } from '@modules/statistic/statistic.module';
-import { User } from './core/user/entities/user.entity';
+import { UserEntity } from './core/user/entities/user.entity';
 import { Tag } from '@modules/tag/entities/tag.entity';
 import { ArticleEntity } from '@modules/article/entities/article.entity';
 import connectionCfg from '../ormconfig';
 import { Config } from './types/config-service';
 import { ShareModule } from './modules/share/share.module';
 import { FileManagementModule } from './modules/file-management/file-management.module';
+import { UserService } from './core/user/user.service';
 
 const envFilePath = ['.env', `.env.${process.env.NODE_ENV}`];
 
 @Module({
   imports: [
     TypeOrmModule.forRoot(connectionCfg),
-    TypeOrmModule.forFeature([ArticleEntity, Tag, User]),
+    TypeOrmModule.forFeature([ArticleEntity, Tag, UserEntity]),
     LoggerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -45,6 +46,6 @@ const envFilePath = ['.env', `.env.${process.env.NODE_ENV}`];
     FileManagementModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, UserService],
 })
 export class AppModule {}

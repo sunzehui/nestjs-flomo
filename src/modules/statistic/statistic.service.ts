@@ -3,7 +3,7 @@ import { subDays, addDays, format, parseISO } from 'date-fns';
 
 import { Tag } from '@modules/tag/entities/tag.entity';
 import { ArticleEntity } from '@modules/article/entities/article.entity';
-import { User } from '@/core/user/entities/user.entity';
+import { UserEntity } from '@/core/user/entities/user.entity';
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -17,8 +17,8 @@ export class StatisticService {
     private readonly articleRepository: Repository<ArticleEntity>,
     @InjectRepository(Tag)
     private readonly tagRepository: Repository<Tag>,
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
   ) {}
 
   async getUserStatistic(userId: string) {

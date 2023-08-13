@@ -1,4 +1,4 @@
-import { User } from '@/core/user/entities/user.entity';
+import { UserEntity } from '@/core/user/entities/user.entity';
 import { Tag } from '@modules/tag/entities/tag.entity';
 import {
   Entity,
@@ -26,8 +26,8 @@ export class ArticleEntity {
   content: string;
 
   //   关联user和tag;
-  @ManyToOne(() => User, (user) => user.articles)
-  user: User;
+  @ManyToOne(() => UserEntity, (user) => user.articles)
+  user: UserEntity;
 
   @DeleteDateColumn()
   deleteTime: Date;

@@ -1,5 +1,5 @@
 import { ArticleEntity } from '@modules/article/entities/article.entity';
-import { User } from '@/core/user/entities/user.entity';
+import { UserEntity } from '@/core/user/entities/user.entity';
 import {
   Entity,
   Column,
@@ -28,6 +28,6 @@ export class Tag {
   @DeleteDateColumn()
   deleteTime: Date;
 
-  @ManyToOne(() => User, (user) => user.id)
-  user: User;
+  @ManyToOne(() => UserEntity, (user) => user.id)
+  user: UserEntity;
 }

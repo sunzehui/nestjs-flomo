@@ -34,22 +34,24 @@ export class FileManagementController {
     //   const fileList = await this.fileManagementService.getFileList();
     //   return { files: fileList };
     // }
-    const fileList = await this.fileManagementService.getUserFiles(userId);
-    return { files: fileList };
+    // const fileList = await this.fileManagementService.getUserFiles(userId);
+    // return { files: fileList };
   }
 
-  @Get(':fileId')
-  async getFileById(
-    @Param('userId') userId: string,
-    @Param('fileId') fileId: number,
-  ) {
-    const file = await this.fileManagementService.getFileById(userId, fileId);
-    return { file };
-  }
+  // @Get(':fileId')
+  // async getFileById(
+  //   @Param('userId') userId: string,
+  //   @Param('fileId') fileId: number,
+  // ) {
+  //   const file = await this.fileManagementService.getFileById(userId, fileId);
+  //   return { file };
+  // }
 
   @Get('is-exist/:md5')
   @UseGuards(JwtAuthGuard)
   async isFileExist(@Param('md5') md5: string,@User('id') userId: string) {
+    try{
+
     const file = await this.fileManagementService.isFileExist(md5);
     if(!file){
       return false
@@ -58,6 +60,10 @@ export class FileManagementController {
     const fileEntity = await this.fileManagementService.saveUserFileQuickly(userId, file);
 
     return fileEntity;
+
+    }catch(err){
+      throw new BadRequestException(err.message);
+    }
   }
 
   @Post()
@@ -94,7 +100,7 @@ export class FileManagementController {
     @Query('userId') userId: string,
     @Query('filename') filename: string,
   ) {
-    await this.fileManagementService.deleteFile(userId, filename);
+    // await this.fileManagementService.deleteFile(userId, filename);
     return { message: 'File deleted successfully' };
   }
 }

@@ -4,15 +4,23 @@ import {
   BeforeInsert,
   Column,
   Entity,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
+import { FileEntity } from '@modules/file-management/entities/file.entity';
 
 @Entity()
-export class User {
+export class UserEntity {
+  constructor(user: Partial<UserEntity>) {
+    Object.assign(this, user);
+  }
   @PrimaryGeneratedColumn()
   id: string;
+
 
   @Column({ unique: true, type: 'varchar' })
   username: string;
@@ -45,6 +53,21 @@ export class User {
 
   @OneToMany(() => Tag, (tag) => tag.user)
   tags: Tag[];
+
+  // Add this relationship
+  @JoinTable({
+    name: 'user_file', // 此关系的联结表的表名
+    joinColumn: {
+      name: 'user',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'file',
+      referencedColumnName: 'id',
+    },
+  })
+  @ManyToMany(() => FileEntity, (file) => file.users) 
+  files: FileEntity[];
 
   @Column()
   last_login: string;
