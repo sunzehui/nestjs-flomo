@@ -1,14 +1,14 @@
-import { Between } from 'typeorm';
-import { subDays, addDays, format, parseISO } from 'date-fns';
+import { Between, IsNull } from "typeorm";
+import { subDays, addDays, format, parseISO } from "date-fns";
 
-import { Tag } from '@modules/tag/entities/tag.entity';
-import { ArticleEntity } from '@modules/article/entities/article.entity';
-import { UserEntity } from '@/core/user/entities/user.entity';
-import { Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
-import * as _ from 'lodash';
-import { daysPassedSince } from '@utils/date';
+import { Tag } from "@modules/tag/entities/tag.entity";
+import { ArticleEntity } from "@modules/article/entities/article.entity";
+import { UserEntity } from "@/core/user/entities/user.entity";
+import { Injectable } from "@nestjs/common";
+import { Repository } from "typeorm";
+import { InjectRepository } from "@nestjs/typeorm";
+import * as _ from "lodash";
+import { daysPassedSince } from "@utils/date";
 
 @Injectable()
 export class StatisticService {
@@ -27,9 +27,10 @@ export class StatisticService {
     });
     const memoCount = await this.articleRepository.countBy({
       user: { id: userId },
-      deleteTime: null,
+      deleteTime: IsNull(),
     });
     const userEntity = await this.userRepository.findOneBy({ id: userId });
+    if (!userEntity) throw new Error("用户不存在");
     // 用户注册时间-当前时间
     const day = daysPassedSince(new Date(userEntity.createTime));
     return {
@@ -44,21 +45,21 @@ export class StatisticService {
     // 时间在区间范围内的文章数量
 
     const StatisticList = await this.articleRepository
-      .createQueryBuilder('article')
-      .groupBy('DATE(createTime)')
+      .createQueryBuilder("article")
+      .groupBy("DATE(createTime)")
       .where({
         createTime: DateRange(new Date()),
         user: { id: userId },
       })
-      .select('article.*')
-      .addSelect('count(article.id)', 'count')
+      .select("article.*")
+      .addSelect("count(article.id)", "count")
       .getRawMany();
 
     return _.reduce(
       StatisticList,
-      (acc, item) => {
-        const date = format(parseISO(item.createTime), 'yyyy-MM-dd');
-        return _.assign(acc, { [date]: _.toNumber(item.count) });
+      (accumulator, item) => {
+        const date = format(parseISO(item.createTime), "yyyy-MM-dd");
+        return _.assign(accumulator, { [date]: _.toNumber(item.count) });
       },
       {},
     );

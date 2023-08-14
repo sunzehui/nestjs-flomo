@@ -8,7 +8,10 @@ import { FileEntity } from './entities/file.entity';
 import { UserEntity } from '@/core/user/entities/user.entity';
 
 @Module({
-  imports: [ConfigModule.forRoot(), TypeOrmModule.forFeature([FileEntity,UserEntity])],
+  imports: [
+    ConfigModule.forRoot(),
+    TypeOrmModule.forFeature([FileEntity, UserEntity]),
+  ],
   controllers: [FileManagementController],
   providers: [FileManagementService],
 })

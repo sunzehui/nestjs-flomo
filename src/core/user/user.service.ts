@@ -1,12 +1,12 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
-import { HttpException } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import * as _ from 'lodash';
-import { InjectRepository } from '@nestjs/typeorm';
-import { UserEntity } from './entities/user.entity';
-import { QueryFailedError, Repository } from 'typeorm';
-import { ResultData } from '@utils/result';
-import { UpdateUserDto } from '@/core/user/dto/update-user.dto';
+import { HttpStatus, Injectable } from "@nestjs/common";
+import { HttpException } from "@nestjs/common";
+import { CreateUserDto } from "./dto/create-user.dto";
+import * as _ from "lodash";
+import { InjectRepository } from "@nestjs/typeorm";
+import { UserEntity } from "./entities/user.entity";
+import { QueryFailedError, Repository } from "typeorm";
+import { ResultData } from "@utils/result";
+import { UpdateUserDto } from "@/core/user/dto/update-user.dto";
 
 @Injectable()
 export class UserService {
@@ -15,7 +15,7 @@ export class UserService {
     private repository: Repository<UserEntity>,
   ) {}
 
-  async findUser(id: UserEntity['id']) {
+  async findUser(id: UserEntity["id"]) {
     return await this.repository.findOneBy({ id });
   }
 
@@ -29,7 +29,7 @@ export class UserService {
       day_count: 0,
       tag_count: 0,
       month_sign_id: 0,
-      last_login: '',
+      last_login: "",
     };
     try {
       const user = this.repository.create(userDO);
@@ -40,11 +40,9 @@ export class UserService {
 
       return ResultData.ok(result);
     } catch (error) {
-      if (error instanceof QueryFailedError) {
-        throw new HttpException('用户名已存在', HttpStatus.BAD_REQUEST);
-      } else {
-        throw error;
-      }
+      throw error instanceof QueryFailedError
+        ? new HttpException("用户名已存在", HttpStatus.BAD_REQUEST)
+        : error;
     }
   }
 
@@ -59,14 +57,16 @@ export class UserService {
   findLoginUser(username: string) {
     return this.repository.findOne({
       where: { username },
-      select: ['id', 'username', 'password', 'nickname', 'last_login'],
+      select: ["id", "username", "password", "nickname", "last_login"],
     });
   }
   async updateUser(userId: string, updateUserDto: UpdateUserDto) {
     const userDo = {
       nickname: updateUserDto.nickname,
     };
-    const res = await this.repository.update({ id: userId }, userDo);
+    const res = (await this.repository.update({ id: userId }, userDo)) as {
+      affected: number;
+    };
     return res.affected >= 0;
   }
 }

@@ -18,10 +18,10 @@ export class AuthController {
   @HttpCode(200)
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Req() req: Request) {
-    const isLogin = await this.authService.login(req.user);
+  async login(@Req() request: Request) {
+    const isLogin = await this.authService.login(request.user);
     if (isLogin.token) {
-      await this.authService.recordLogin(req.user);
+      await this.authService.recordLogin(request.user);
     }
     return isLogin;
   }

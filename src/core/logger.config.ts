@@ -3,8 +3,10 @@ import { getLogLevel } from '@utils/logger';
 import { Request, Response } from 'express';
 import { Options } from 'pino-http';
 
-type EnvMode = Config['NODE_ENV'];
-export function pinoHttpOption(envMode: EnvMode = 'development'): Options {
+type EnvironmentMode = Config['NODE_ENV'];
+export function pinoHttpOption(
+  environmentMode: EnvironmentMode = 'development',
+): Options {
   return {
     customAttributeKeys: {
       req: 'request:',
@@ -13,22 +15,21 @@ export function pinoHttpOption(envMode: EnvMode = 'development'): Options {
       responseTime: 'time(ms)',
     },
     customLogLevel(_: Request, res: Response) {
-      if (envMode === 'production') {
+      if (environmentMode === 'production') {
         return 'silent';
       }
       return getLogLevel(res.statusCode);
     },
     serializers: {
       // 自定义请求日志
-      req(_req) {
-        const santizedReq = {
-          method: _req.method,
-          url: _req.url,
-          params: _req.raw.params,
-          query: _req.raw.query,
-          body: _req.raw.body,
+      req(_request) {
+        return {
+          method: _request.method,
+          url: _request.url,
+          params: _request.raw.params,
+          query: _request.raw.query,
+          body: _request.raw.body,
         };
-        return santizedReq;
       },
       res(_res: Response) {
         return {
@@ -41,7 +42,7 @@ export function pinoHttpOption(envMode: EnvMode = 'development'): Options {
       target: 'pino-pretty',
       // 美化插件配置
       options:
-        envMode === 'development'
+        environmentMode === 'development'
           ? {
               colorize: true, // 带颜色输出
               levelFirst: true,

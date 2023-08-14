@@ -6,21 +6,26 @@ export function getLogLevel(status: HttpStatus): Level {
     case HttpStatus.Continue:
     case HttpStatus.OK:
     case HttpStatus.Created:
-    case HttpStatus.NoContent:
+    case HttpStatus.NoContent: {
       return 'info';
+    }
     case HttpStatus.MovedPermanently:
-    case HttpStatus.Found:
+    case HttpStatus.Found: {
       return 'debug';
+    }
     case HttpStatus.BadRequest:
     case HttpStatus.Unauthorized:
     case HttpStatus.Forbidden:
-    case HttpStatus.NotFound:
+    case HttpStatus.NotFound: {
       return 'warn';
+    }
     case HttpStatus.InternalServerError:
     case HttpStatus.BadGateway:
-    case HttpStatus.ServiceUnavailable:
+    case HttpStatus.ServiceUnavailable: {
       return 'error';
-    default:
-      return 'info'; // Default to info level if the HttpStatus is not recognized
+    }
+    default: {
+      return 'info';
+    } // Default to info level if the HttpStatus is not recognized
   }
 }

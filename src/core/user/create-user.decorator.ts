@@ -8,11 +8,11 @@ import {
 @ValidatorConstraint({ name: 'customText', async: false })
 export default class CustomUsername implements ValidatorConstraintInterface {
   validate(text: string) {
-    const isValidName = (arg) => /^[a-zA-Z0-9]{6,18}$/.test(arg);
+    const isValidName = (argument) => /^[\dA-Za-z]{6,18}$/.test(argument);
     return isEmail(text) || isValidName(text);
   }
 
-  defaultMessage(args: ValidationArguments) {
+  defaultMessage(arguments_: ValidationArguments) {
     // here you can provide default error message if validation failed
     return '用户名不符合规范';
   }

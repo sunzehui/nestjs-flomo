@@ -21,7 +21,6 @@ export class UserEntity {
   @PrimaryGeneratedColumn()
   id: string;
 
-
   @Column({ unique: true, type: 'varchar' })
   username: string;
 
@@ -66,7 +65,7 @@ export class UserEntity {
       referencedColumnName: 'id',
     },
   })
-  @ManyToMany(() => FileEntity, (file) => file.users) 
+  @ManyToMany(() => FileEntity, (file) => file.users)
   files: FileEntity[];
 
   @Column()

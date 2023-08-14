@@ -1,4 +1,5 @@
-import { IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsDefined, IsString } from 'class-validator';
 
 export class CreateFileDto {
   @IsString()
@@ -7,7 +8,8 @@ export class CreateFileDto {
   @IsString()
   filename: string;
 
-  file: any;
+  @IsDefined()
+  file: Express.Multer.File;
 
   @IsString()
   md5: string;

@@ -8,7 +8,7 @@ import {
 } from 'date-fns';
 
 export function daysPassedSince(endTime: Date) {
-  const timeDifferenceInDays = differenceInCalendarDays(new Date(), endTime); // 计算时间差
+  // 计算时间差
 
-  return timeDifferenceInDays;
+  return differenceInCalendarDays(new Date(), endTime);
 }

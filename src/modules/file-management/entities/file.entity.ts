@@ -26,10 +26,9 @@ export class FileEntity {
   id: number;
 
   // Add this relationship
-  
+
   @ManyToMany(() => UserEntity, (user) => user.files)
   users: UserEntity[];
-
 
   @Column()
   filename: string;
@@ -41,6 +40,6 @@ export class FileEntity {
   @JoinColumn({ name: 'article_id' })
   article: ArticleEntity;
 
-  @Column({unique: true}) 
+  @Column({ unique: true })
   md5: string;
 }

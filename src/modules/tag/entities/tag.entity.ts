@@ -1,5 +1,5 @@
-import { ArticleEntity } from '@modules/article/entities/article.entity';
-import { UserEntity } from '@/core/user/entities/user.entity';
+import { ArticleEntity } from "@modules/article/entities/article.entity";
+import { UserEntity } from "@/core/user/entities/user.entity";
 import {
   Entity,
   Column,
@@ -8,14 +8,14 @@ import {
   DeleteDateColumn,
   Index,
   ManyToOne,
-} from 'typeorm';
+} from "typeorm";
 
 @Entity()
 export class Tag {
   @PrimaryGeneratedColumn()
   id?: string;
 
-  @Column({ type: 'varchar', charset: 'utf8mb4' })
+  @Column({ type: "varchar", charset: "utf8mb4" })
   @Index({ unique: true })
   content: string;
 
@@ -25,8 +25,10 @@ export class Tag {
   @ManyToMany(() => ArticleEntity, (article) => article.tags)
   articles: ArticleEntity[];
 
-  @DeleteDateColumn()
-  deleteTime: Date;
+  @DeleteDateColumn({
+    nullable: true,
+  })
+  deleteTime: Date | null;
 
   @ManyToOne(() => UserEntity, (user) => user.id)
   user: UserEntity;

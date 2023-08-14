@@ -2,4 +2,6 @@
     "cSpell.enableFiletypes": [
         "json"
     ],
+    "javascript.preferences.importModuleSpecifierEnding": "js",
+    "typescript.preferences.importModuleSpecifierEnding": "js",
 }

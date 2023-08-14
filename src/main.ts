@@ -1,11 +1,12 @@
-import { NestFactory } from '@nestjs/core';
-import { TransformInterceptor } from './core/interceptor/transform.interceptor';
-import { AppModule } from './app.module';
-import * as express from 'express';
-import { join, resolve } from 'path';
-import { ConfigService } from '@nestjs/config';
-import { LoggerErrorInterceptor } from 'nestjs-pino';
-import { ValidationPipe } from '@nestjs/common';
+import { NestFactory } from "@nestjs/core";
+import { AppModule } from "./app.module";
+import * as express from "express";
+import { resolve } from "path";
+import { ConfigService } from "@nestjs/config";
+import { LoggerErrorInterceptor } from "nestjs-pino";
+import { ValidationPipe } from "@nestjs/common";
+import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
+import { TransformInterceptor } from "./core/interceptor/transform.interceptor.js";
 
 async function bootstrap() {
   // 创建时就指定logger, 所有框架消息都能打印
@@ -14,23 +15,28 @@ async function bootstrap() {
     // logger: false,
   });
   // 设置/uploads目录为静态文件目录
-  app.use('/uploads', express.static(resolve('uploads')));
+  app.use("/uploads", express.static(resolve("uploads")));
 
-  app.useGlobalInterceptors(new LoggerErrorInterceptor());
-  // app.useLogger(app.get(Logger));
   const configService = app.get(ConfigService);
-  // 全局注册拦截器
-  app.useGlobalInterceptors(new TransformInterceptor());
   app.useGlobalPipes(new ValidationPipe());
-  await app.listen(configService.get('port'));
+
+  const config = new DocumentBuilder()
+    .setTitle("Cats example")
+    .setDescription("The cats API description")
+    .setVersion("1.0")
+    .addTag("cats")
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup("api", app, document);
+  const port = configService.get<number>("port");
+  await app.listen(port || 300);
+  console.log(
+    `🤩 应用程序接口地址： http://localhost:${configService.get<number>(
+      "port",
+    )}`,
+  );
+  console.log("🚀 服务应用已经成功启动！");
   return configService;
 }
 
-bootstrap().then((configService) => {
-  console.log(
-    `🤩 应用程序接口地址： http://localhost:${configService.get<number>(
-      'port',
-    )}`,
-  );
-  console.log('🚀 服务应用已经成功启动！');
-});
+bootstrap();
