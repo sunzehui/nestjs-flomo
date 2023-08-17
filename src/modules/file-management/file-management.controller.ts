@@ -82,7 +82,7 @@ export class FileManagementController {
           fileType: "image",
         })
         .addMaxSizeValidator({
-          maxSize: 1000,
+          maxSize: /* 5mb */ 5 * 1024 * 1024,
         })
         .build({
           errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,

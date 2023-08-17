@@ -72,10 +72,21 @@ export class ArticleEntity {
   @Column({ default: false })
   is_topic: boolean;
 
-  @OneToMany(() => FileEntity, (file) => file.article, {
+  @ManyToMany(() => FileEntity, (file) => file.article, {
     cascade: true,
     onDelete: "CASCADE",
+    onUpdate: "CASCADE",
   }) // Define one-to-many relationship
-  @JoinColumn({ name: "article_id" })
+  @JoinTable({
+    name: "article_file",
+    joinColumn: {
+      name: "article",
+      referencedColumnName: "id",
+    },
+    inverseJoinColumn: {
+      name: "file",
+      referencedColumnName: "id",
+    },
+  })
   files: FileEntity[];
 }

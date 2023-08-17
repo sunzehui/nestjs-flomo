@@ -1,5 +1,5 @@
 // file.entity.ts
-import { ArticleEntity } from '@modules/article/entities/article.entity';
+import { ArticleEntity } from "@modules/article/entities/article.entity";
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -8,12 +8,12 @@ import {
   JoinColumn,
   JoinTable,
   ManyToMany,
-} from 'typeorm';
-import { join as lJoin } from 'lodash';
-import { Transform } from 'class-transformer';
-import { ConfigService } from '@nestjs/config';
-import { Injectable } from '@nestjs/common';
-import { UserEntity } from '@/core/user/entities/user.entity';
+} from "typeorm";
+import { join as lJoin } from "lodash";
+import { Transform } from "class-transformer";
+import { ConfigService } from "@nestjs/config";
+import { Injectable } from "@nestjs/common";
+import { UserEntity } from "@/core/user/entities/user.entity";
 
 @Entity()
 @Injectable()
@@ -36,9 +36,8 @@ export class FileEntity {
   @Column()
   filePath: string;
 
-  @ManyToOne(() => ArticleEntity, (article) => article.files) // Define many-to-one relationship
-  @JoinColumn({ name: 'article_id' })
-  article: ArticleEntity;
+  @ManyToMany(() => ArticleEntity, (article) => article.files) // Define many-to-one relationship
+  article: ArticleEntity[];
 
   @Column({ unique: true })
   md5: string;
