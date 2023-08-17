@@ -10,5 +10,5 @@ export class UpdateArticleDto extends PartialType(
   tags: string[];
 
   @IsOptional()
-  is_topic:boolean;
+  is_topic: boolean;
 }
