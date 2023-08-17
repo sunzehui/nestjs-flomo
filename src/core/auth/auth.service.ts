@@ -5,6 +5,7 @@ import { LoginUserDto } from "../user/dto/login-user.dto";
 import { UserService } from "../user/user.service";
 import * as _ from "lodash";
 import * as bcrypt from "bcryptjs";
+import { UserEntity } from "../user/entities/user.entity.js";
 
 @Injectable()
 export class AuthService {
@@ -13,7 +14,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async validateUser(loginUserDto: LoginUserDto): Promise<UserStatusDTO> {
+  async validateUser(loginUserDto: LoginUserDto) {
     const username = loginUserDto.username;
     const password = loginUserDto.password;
     if (_.isEmpty(username) || _.isEmpty(password)) {
@@ -27,14 +28,14 @@ export class AuthService {
     if (!isValidPwd) {
       throw new UnauthorizedException("账号或密码错误");
     }
-    return {
-      id: user.id,
-      username: user.username,
-    };
+    return user;
   }
 
-  async login(userInfo: UserStatusDTO) {
-    return this.createToken(userInfo);
+  async login(userInfo: UserEntity) {
+    return this.createToken({
+      username: userInfo.username,
+      id: userInfo.id,
+    });
   }
 
   createToken({ username, id }: UserStatusDTO) {
@@ -46,8 +47,8 @@ export class AuthService {
     };
   }
 
-  recordLogin(userInfo: UserStatusDTO) {
-    const { id } = userInfo;
+  recordLogin(user: UserEntity) {
+    const { id } = user;
     return this.userService.recordLogin(id);
   }
 }

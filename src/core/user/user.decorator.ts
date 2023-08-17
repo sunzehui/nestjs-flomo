@@ -1,11 +1,10 @@
-import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import { createParamDecorator, ExecutionContext } from "@nestjs/common";
+import { Request } from "express";
+import { UserEntity } from "./entities/user.entity";
 
 export const User = createParamDecorator(
-  (data: any, context: ExecutionContext) => {
-    const request = context.switchToHttp().getRequest();
-    // if route is protected, there is a user set in auth.middleware
-    if (request.user) {
-      return data ? request.user[data] : request.user;
-    }
+  (query: keyof UserEntity, context: ExecutionContext) => {
+    const request = context.switchToHttp().getRequest<Request>();
+    return request.user?.[query];
   },
 );
