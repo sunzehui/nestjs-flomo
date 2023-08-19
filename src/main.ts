@@ -33,8 +33,8 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup("api", app, document);
-  const port = configService.get<number>("port");
-  await app.listen(port || 3000);
+  const port = process.env.PORT || configService.get("PORT") || 3000;
+  await app.listen(port);
   console.log(
     `🤩 应用程序接口地址： ${await app.getUrl()}`,
   );
