@@ -34,11 +34,9 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup("api", app, document);
   const port = configService.get<number>("port");
-  await app.listen(port || 300);
+  await app.listen(port || 3000);
   console.log(
-    `🤩 应用程序接口地址： http://localhost:${configService.get<number>(
-      "port",
-    )}`,
+    `🤩 应用程序接口地址： ${await app.getUrl()}`,
   );
   console.log("🚀 服务应用已经成功启动！");
   return configService;
