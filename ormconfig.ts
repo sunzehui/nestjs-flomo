@@ -1,12 +1,14 @@
-import { DataSourceOptions } from "typeorm";
+import { DataSource, DataSourceOptions } from "typeorm";
 
-import "dotenv";
 
-export default {
+export const datasourceOptions = {
   type: "sqlite",
   database: "src/lib/sqlite.db", // Replace this with your desired database file path
   autoLoadEntities: true,
-  //   entities: ["dist/**/*.entity{.ts,.js}"],
+  entities: ["dist/**/*.entity{.ts,.js}"],
   synchronize: true,
   dateStrings: true,
+  migrations: ["dist/src/core/sql/*.js"]
 } as DataSourceOptions;
+
+export default new DataSource(datasourceOptions)
