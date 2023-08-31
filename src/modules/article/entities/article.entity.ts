@@ -13,8 +13,9 @@ import {
   OneToMany,
   JoinColumn,
 } from "typeorm";
-import moment from "moment";
+import * as moment from "moment";
 import { FileEntity } from "@modules/file-management/entities/file.entity";
+import { formatTime } from "@utils/date";
 
 @Entity()
 export class ArticleEntity {
@@ -60,7 +61,7 @@ export class ArticleEntity {
 
   @BeforeUpdate()
   time() {
-    this.updateTime = moment().format("YYYY-MM-DD HH:mm:ss");
+    this.updateTime = formatTime(new Date().toISOString());
   }
   @Column({
     type: "datetime",

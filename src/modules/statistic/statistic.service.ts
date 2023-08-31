@@ -8,7 +8,7 @@ import { Injectable } from "@nestjs/common";
 import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import * as _ from "lodash";
-import { daysPassedSince } from "@utils/date";
+import { daysPassedSince, formatDate } from "@utils/date";
 
 @Injectable()
 export class StatisticService {
@@ -58,7 +58,8 @@ export class StatisticService {
     return _.reduce(
       StatisticList,
       (accumulator, item) => {
-        const date = format(parseISO(item.createTime), "yyyy-MM-dd");
+        const date = formatDate(item.createTime);
+        
         return _.assign(accumulator, { [date]: _.toNumber(item.count) });
       },
       {},
