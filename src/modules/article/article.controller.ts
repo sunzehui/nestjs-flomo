@@ -15,6 +15,7 @@ import {
 import { ArticleService } from "./article.service";
 import { CreateArticleDto } from "./dto/create-article.dto";
 import { UpdateArticleDto } from "./dto/update-article.dto";
+import { FindArticleQuery } from "./dto/find-article.dto.js";
 
 @Controller("article")
 export class ArticleController {
@@ -24,12 +25,15 @@ export class ArticleController {
   @Post()
   async create(@User("id") userId, @Body() createArticleDto: CreateArticleDto) {
     try {
-      const articleEntity = await this.articleService.create(
+      const createdArticle = await this.articleService.create(
         userId,
         createArticleDto,
       );
 
-      return await this.articleService.findOne(articleEntity.id);
+      const articleEntity = await this.articleService.findOne(
+        createdArticle.id,
+      );
+      return this.articleService.resolveFilePath(articleEntity);
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -39,18 +43,12 @@ export class ArticleController {
   @Get()
   async findUserArticle(
     @User("id") user,
-    @Query("tag") tag: string,
-    @Query("deleted") deleted: string,
+    @Query() findQuery: Record<keyof FindArticleQuery, string>,
   ) {
     return await this.articleService.findAll(user, {
-      tag,
-      deleted: deleted === "true",
+      ...findQuery,
+      deleted: findQuery.deleted === "true",
     });
-  }
-
-  @Get(":id")
-  findOne(@Param("id") id: string) {
-    return this.articleService.findOne(id);
   }
 
   @Patch(":id")

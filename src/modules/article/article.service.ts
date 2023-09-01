@@ -3,6 +3,7 @@ import {
   FindOptionsWhere,
   In,
   IsNull,
+  Like,
   Not,
   Repository,
 } from "typeorm";
@@ -16,6 +17,7 @@ import { Tag } from "@modules/tag/entities/tag.entity";
 import { FileEntity } from "@modules/file-management/entities/file.entity";
 import { ConfigService } from "@nestjs/config";
 import { isNull } from "lodash";
+import { FindArticleQuery } from "./dto/find-article.dto.js";
 
 @Injectable()
 export class ArticleService {
@@ -74,19 +76,23 @@ export class ArticleService {
       images,
     };
   }
-  async findAll(
-    user: string,
-    _query: { deleted: boolean; tag: string } = { deleted: false, tag: "" },
-  ) {
-    const query: FindOptionsWhere<ArticleEntity> = {
-      user: { id: user },
-      tags: _query.tag ? { content: _query.tag } : void 0,
-      deleteTime: _query.deleted ? Not(IsNull()) : IsNull(),
-    };
+  async findAll(user: string, _query?: Partial<FindArticleQuery>) {
+    let query: FindOptionsWhere<ArticleEntity> = {};
+    if (_query) {
+      query = {
+        user: { id: user },
+        tags: _query.tag ? { content: _query.tag } : void 0,
+        deleteTime: _query.deleted ? Not(IsNull()) : IsNull(),
+        content: _query.content ? Like(`%${_query.content}%`) : void 0,
+      };
+    }
+    console.log("q", query);
+
     const articleList = await this.repository.find({
       where: { ...query },
       order: { updateTime: "DESC" },
       relations: ["user", "tags", "files"],
+      withDeleted: true,
     });
 
     return articleList.map((article) => {
@@ -103,7 +109,7 @@ export class ArticleService {
     if (_.isNil(article)) {
       throw new UnprocessableEntityException("文章不存在");
     }
-    return this.resolveFilePath(article);
+    return article;
   }
 
   // 物理存在，包括软删除
@@ -134,6 +140,7 @@ export class ArticleService {
     if (!_.isNil(is_topic)) {
       articleEntity.is_topic = is_topic;
     }
+
     return await this.repository.save(articleEntity);
   }
 
