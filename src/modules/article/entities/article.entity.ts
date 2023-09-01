@@ -10,12 +10,9 @@ import {
   DeleteDateColumn,
   BeforeUpdate,
   Index,
-  OneToMany,
-  JoinColumn,
+  UpdateDateColumn,
 } from "typeorm";
-import * as moment from "moment";
 import { FileEntity } from "@modules/file-management/entities/file.entity";
-import { formatTime } from "@utils/date";
 
 @Entity()
 export class ArticleEntity {
@@ -59,11 +56,8 @@ export class ArticleEntity {
   @Column({ type: "datetime", default: () => "CURRENT_TIMESTAMP" })
   createTime: string;
 
-  @BeforeUpdate()
-  time() {
-    this.updateTime = formatTime(new Date().toISOString());
-  }
-  @Column({
+  
+  @UpdateDateColumn({
     type: "datetime",
     nullable: true,
     default: () => "CURRENT_TIMESTAMP",

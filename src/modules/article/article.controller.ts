@@ -40,11 +40,11 @@ export class ArticleController {
   async findUserArticle(
     @User("id") user,
     @Query("tag") tag: string,
-    @Query("inTrash") inTrash: boolean,
+    @Query("deleted") deleted: string,
   ) {
     return await this.articleService.findAll(user, {
       tag,
-      inTrash,
+      deleted: deleted === "true",
     });
   }
 
