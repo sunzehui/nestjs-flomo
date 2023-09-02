@@ -1,9 +1,9 @@
-import { OmitType, PartialType } from '@nestjs/mapped-types';
-import { CreateArticleDto } from './create-article.dto';
-import { IsArray, IsOptional } from 'class-validator';
+import { OmitType, PartialType } from "@nestjs/mapped-types";
+import { CreateArticleDto } from "./create-article.dto";
+import { IsArray, IsOptional } from "class-validator";
 
 export class UpdateArticleDto extends PartialType(
-  OmitType(CreateArticleDto, ['tags']),
+  OmitType(CreateArticleDto, ["tags"]),
 ) {
   @IsOptional()
   @IsArray()
@@ -11,4 +11,7 @@ export class UpdateArticleDto extends PartialType(
 
   @IsOptional()
   is_topic: boolean;
+
+  @IsOptional()
+  recycle: boolean;
 }

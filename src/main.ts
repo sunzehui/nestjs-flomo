@@ -14,6 +14,8 @@ async function bootstrap() {
     // bufferLogs: true,
     // logger: false,
   });
+  app.enableCors();
+
   // 设置/uploads目录为静态文件目录
   app.use("/uploads", express.static(resolve("uploads")));
 
@@ -35,9 +37,7 @@ async function bootstrap() {
   SwaggerModule.setup("api", app, document);
   const port = process.env.PORT || configService.get("PORT") || 3000;
   await app.listen(port);
-  console.log(
-    `🤩 应用程序接口地址： ${await app.getUrl()}`,
-  );
+  console.log(`🤩 应用程序接口地址： ${await app.getUrl()}`);
   console.log("🚀 服务应用已经成功启动！");
   return configService;
 }

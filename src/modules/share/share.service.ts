@@ -1,6 +1,6 @@
-import { UserService } from '@/core/user/user.service';
-import { ArticleService } from '@modules/article/article.service';
-import { Injectable } from '@nestjs/common';
+import { UserService } from "@/core/user/user.service";
+import { ArticleService } from "@modules/article/article.service";
+import { Injectable } from "@nestjs/common";
 
 @Injectable()
 export class ShareService {

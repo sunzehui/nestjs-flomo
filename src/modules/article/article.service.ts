@@ -1,4 +1,14 @@
-import { In, IsNull, Repository } from "typeorm";
+import {
+  FindManyOptions,
+  FindOptionsWhere,
+  In,
+  IsNull,
+  LessThan,
+  Like,
+  Not,
+  Repository,
+} from "typeorm";
+import { Cron, CronExpression } from "@nestjs/schedule";
 import { Injectable, UnprocessableEntityException } from "@nestjs/common";
 import { CreateArticleDto } from "./dto/create-article.dto";
 import { UpdateArticleDto } from "./dto/update-article.dto";
@@ -8,6 +18,7 @@ import * as _ from "lodash";
 import { Tag } from "@modules/tag/entities/tag.entity";
 import { FileEntity } from "@modules/file-management/entities/file.entity";
 import { ConfigService } from "@nestjs/config";
+import { FindArticleQuery } from "./dto/find-article.dto.js";
 
 @Injectable()
 export class ArticleService {
@@ -66,21 +77,23 @@ export class ArticleService {
       images,
     };
   }
-  async findAll(
-    user: string,
-    _query: { inTrash: boolean; tag: string } = { inTrash: false, tag: "" },
-  ) {
-    const inTrash = _query.inTrash;
-    const query = {
-      user: { id: user },
-      tags: _query.tag ? { content: _query.tag } : void 0,
-    };
+  async findAll(user: string, _query?: Partial<FindArticleQuery>) {
+    let query: FindOptionsWhere<ArticleEntity> = {};
+    if (_query) {
+      query = {
+        user: { id: user },
+        tags: _query.tag ? { content: _query.tag } : void 0,
+        deleteTime: _query.deleted ? Not(IsNull()) : IsNull(),
+        content: _query.content ? Like(`%${_query.content}%`) : void 0,
+      };
+    }
+    console.log("q", query);
 
     const articleList = await this.repository.find({
       where: { ...query },
       order: { updateTime: "DESC" },
       relations: ["user", "tags", "files"],
-      withDeleted: inTrash,
+      withDeleted: true,
     });
 
     return articleList.map((article) => {
@@ -92,11 +105,12 @@ export class ArticleService {
     const article = await this.repository.findOne({
       where: { id },
       relations: ["tags", "user", "files"],
+      withDeleted: true,
     });
     if (_.isNil(article)) {
       throw new UnprocessableEntityException("文章不存在");
     }
-    return this.resolveFilePath(article);
+    return article;
   }
 
   // 物理存在，包括软删除
@@ -108,9 +122,12 @@ export class ArticleService {
   }
 
   async update(id: string, updateArticleDto: UpdateArticleDto) {
-    const articleEntity = await this.repository.findOneBy({ id });
-    if (_.isNil(articleEntity)) {
-      throw new UnprocessableEntityException("文章不存在");
+    const articleEntity = await this.findOne(id);
+
+    const isRecycle = updateArticleDto.recycle;
+    if (isRecycle) {
+      articleEntity.deleteTime = null;
+      return await this.repository.save(articleEntity);
     }
     const tags = updateArticleDto.tags;
     const content = updateArticleDto.content;
@@ -124,6 +141,7 @@ export class ArticleService {
     if (!_.isNil(is_topic)) {
       articleEntity.is_topic = is_topic;
     }
+
     return await this.repository.save(articleEntity);
   }
 
@@ -157,7 +175,18 @@ export class ArticleService {
    * @description 删除文章，保留标签
    */
   async remove(id: string) {
-    const article = new ArticleEntity({ id });
-    return this.repository.softRemove(article);
+    const article = await this.repository.findOneBy({ id });
+    if (!article) return;
+    return await this.repository.softRemove(article);
+  }
+
+  @Cron(CronExpression.EVERY_DAY_AT_4AM) // 每天半夜4点执行一次
+  async deleteExpiredMemos() {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    await this.repository.delete({
+      deleteTime: LessThan(thirtyDaysAgo),
+    });
   }
 }

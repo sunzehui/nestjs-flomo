@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/common";
 import { AppController } from "@/app.controller";
+import { ScheduleModule } from "@nestjs/schedule";
 import { AppService } from "@/app.service";
 import { TagModule } from "@modules/tag/tag.module";
 import { TypeOrmModule } from "@nestjs/typeorm";
@@ -34,6 +35,7 @@ const environmentFilePath = [".env", `.env.${process.env.NODE_ENV}`];
       isGlobal: true,
       envFilePath: environmentFilePath,
     }),
+    ScheduleModule.forRoot(),
     TagModule,
     UserModule,
     AuthModule,

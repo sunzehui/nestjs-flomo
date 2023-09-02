@@ -10,10 +10,8 @@ import {
   DeleteDateColumn,
   BeforeUpdate,
   Index,
-  OneToMany,
-  JoinColumn,
+  UpdateDateColumn,
 } from "typeorm";
-import moment from "moment";
 import { FileEntity } from "@modules/file-management/entities/file.entity";
 
 @Entity()
@@ -58,11 +56,8 @@ export class ArticleEntity {
   @Column({ type: "datetime", default: () => "CURRENT_TIMESTAMP" })
   createTime: string;
 
-  @BeforeUpdate()
-  time() {
-    this.updateTime = moment().format("YYYY-MM-DD HH:mm:ss");
-  }
-  @Column({
+  
+  @UpdateDateColumn({
     type: "datetime",
     nullable: true,
     default: () => "CURRENT_TIMESTAMP",
@@ -72,10 +67,21 @@ export class ArticleEntity {
   @Column({ default: false })
   is_topic: boolean;
 
-  @OneToMany(() => FileEntity, (file) => file.article, {
+  @ManyToMany(() => FileEntity, (file) => file.article, {
     cascade: true,
     onDelete: "CASCADE",
+    onUpdate: "CASCADE",
   }) // Define one-to-many relationship
-  @JoinColumn({ name: "article_id" })
+  @JoinTable({
+    name: "article_file",
+    joinColumn: {
+      name: "article",
+      referencedColumnName: "id",
+    },
+    inverseJoinColumn: {
+      name: "file",
+      referencedColumnName: "id",
+    },
+  })
   files: FileEntity[];
 }
