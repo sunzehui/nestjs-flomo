@@ -3,10 +3,12 @@ import {
   FindOptionsWhere,
   In,
   IsNull,
+  LessThan,
   Like,
   Not,
   Repository,
 } from "typeorm";
+import { Cron, CronExpression } from "@nestjs/schedule";
 import { Injectable, UnprocessableEntityException } from "@nestjs/common";
 import { CreateArticleDto } from "./dto/create-article.dto";
 import { UpdateArticleDto } from "./dto/update-article.dto";
@@ -16,7 +18,6 @@ import * as _ from "lodash";
 import { Tag } from "@modules/tag/entities/tag.entity";
 import { FileEntity } from "@modules/file-management/entities/file.entity";
 import { ConfigService } from "@nestjs/config";
-import { isNull } from "lodash";
 import { FindArticleQuery } from "./dto/find-article.dto.js";
 
 @Injectable()
@@ -177,5 +178,15 @@ export class ArticleService {
     const article = await this.repository.findOneBy({ id });
     if (!article) return;
     return await this.repository.softRemove(article);
+  }
+
+  @Cron(CronExpression.EVERY_DAY_AT_4AM) // 每天半夜4点执行一次
+  async deleteExpiredMemos() {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    await this.repository.delete({
+      deleteTime: LessThan(thirtyDaysAgo),
+    });
   }
 }
