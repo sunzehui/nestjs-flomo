@@ -28,7 +28,7 @@ export class ArticleService {
     @InjectRepository(Tag)
     private readonly tagRepo: Repository<Tag>,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
   async create(userId: string, createArticleDto: CreateArticleDto) {
     const articleDO = {
@@ -112,6 +112,12 @@ export class ArticleService {
     }
     return article;
   }
+  async findOneWithFilesFormat(id: string) {
+    const articleEntity = await this.findOne(
+      id,
+    );
+    return this.resolveFilePath(articleEntity);
+  }
 
   // 物理存在，包括软删除
   findExistTags(tags: string[]) {
@@ -124,6 +130,7 @@ export class ArticleService {
   async update(id: string, updateArticleDto: UpdateArticleDto) {
     const articleEntity = await this.findOne(id);
 
+    // 恢复操作
     const isRecycle = updateArticleDto.recycle;
     if (isRecycle) {
       articleEntity.deleteTime = null;
@@ -132,6 +139,7 @@ export class ArticleService {
     const tags = updateArticleDto.tags;
     const content = updateArticleDto.content;
     const is_topic = updateArticleDto.is_topic;
+    const images = updateArticleDto.images;
     if (!_.isNil(tags)) {
       articleEntity.tags = await this.tagInsert(updateArticleDto.tags);
     }
@@ -140,6 +148,9 @@ export class ArticleService {
     }
     if (!_.isNil(is_topic)) {
       articleEntity.is_topic = is_topic;
+    }
+    if (!_.isNil(images)) {
+      articleEntity.files = images.map(imgId => new FileEntity({ id: Number(imgId) }))
     }
 
     return await this.repository.save(articleEntity);

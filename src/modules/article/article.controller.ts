@@ -19,7 +19,7 @@ import { FindArticleQuery } from "./dto/find-article.dto.js";
 
 @Controller("article")
 export class ArticleController {
-  constructor(private readonly articleService: ArticleService) {}
+  constructor(private readonly articleService: ArticleService) { }
 
   @UseGuards(JwtAuthGuard)
   @Post()
@@ -30,10 +30,7 @@ export class ArticleController {
         createArticleDto,
       );
 
-      const articleEntity = await this.articleService.findOne(
-        createdArticle.id,
-      );
-      return this.articleService.resolveFilePath(articleEntity);
+      return await this.articleService.findOneWithFilesFormat(createdArticle.id)
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -52,8 +49,9 @@ export class ArticleController {
   }
 
   @Patch(":id")
-  update(@Param("id") id: string, @Body() updateArticleDto: UpdateArticleDto) {
-    return this.articleService.update(id, updateArticleDto);
+  async update(@Param("id") id: string, @Body() updateArticleDto: UpdateArticleDto) {
+    await this.articleService.update(id, updateArticleDto);
+    return await this.articleService.findOneWithFilesFormat(id)
   }
 
   @Delete(":id")
