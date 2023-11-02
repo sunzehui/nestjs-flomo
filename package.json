@@ -37,7 +37,6 @@
     "lodash": "^4.17.21",
     "lodash-es": "^4.17.21",
     "moment": "^2.29.4",
-    "mysql": "^2.18.1",
     "nestjs-pino": "^3.3.0",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.1",
