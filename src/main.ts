@@ -3,10 +3,8 @@ import { AppModule } from "./app.module";
 import * as express from "express";
 import { resolve } from "path";
 import { ConfigService } from "@nestjs/config";
-import { LoggerErrorInterceptor } from "nestjs-pino";
 import { ValidationPipe } from "@nestjs/common";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
-import { TransformInterceptor } from "./core/interceptor/transform.interceptor.js";
 
 async function bootstrap() {
   // 创建时就指定logger, 所有框架消息都能打印
@@ -21,6 +19,12 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
   app.useGlobalPipes(new ValidationPipe());
+  // production
+  const isProduction = process.env.NODE_ENV === "production";
+  if (isProduction) {
+    app.enableCors();
+    app.setGlobalPrefix("api");
+  }
 
   const config = new DocumentBuilder()
     .setTitle("Cats example")
@@ -29,7 +33,7 @@ async function bootstrap() {
     .addTag("cats")
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup("api", app, document);
+  SwaggerModule.setup("doc", app, document);
   const port = configService.get<number>("port");
   await app.listen(port || 300);
   console.log(`🤩 应用程序接口地址: ${await app.getUrl()}`);

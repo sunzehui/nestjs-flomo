@@ -66,7 +66,7 @@ export class ArticleService {
 
   resolveFilePath(article: ArticleEntity) {
     // 将每个article的每个file的url加上前缀
-    const prefix = this.configService.get("IMG_SERVER");
+    const prefix = this.configService.get("SERVER_URL", '/');
 
     const images = article.files.map((file) => {
       file.filePath = `${prefix}/${file.filePath}`;

@@ -103,7 +103,7 @@ export class FileManagementController {
       const uploadResult = await this.fileManagementService.uploadFile(
         createFileDto,
       );
-      const imgServerUrl = this.configService.get("IMG_SERVER");
+      const imgServerUrl = this.configService.get("SERVER_URL", '/');
       return {
         ...uploadResult,
         url: lJoin([imgServerUrl, uploadResult.filePath], "/"),
