@@ -40,7 +40,7 @@ export class AuthService {
 
   createToken({ username, id }: UserStatusDTO) {
     const token = this.jwtService.sign({ username, id });
-    const expires = process.env.JWT_EXPIRE;
+    const expires = process.env.JWT_EXPIRE || "24h";
     return {
       token,
       expires,

@@ -13,8 +13,8 @@ import 'dotenv/config';
     UserModule,
     PassportModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: process.env.JWT_EXPIRE },
+      secret: process.env.JWT_SECRET||'',
+      signOptions: { expiresIn: process.env.JWT_EXPIRE||'24h' },
     }),
   ],
   controllers: [AuthController],
