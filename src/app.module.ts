@@ -11,7 +11,7 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { LoggerErrorInterceptor, LoggerModule } from "nestjs-pino";
 import { pinoHttpOption } from "@/core/logger.config";
 import { StatisticModule } from "@modules/statistic/statistic.module";
-import connectionCfg from "@/../ormconfig";
+import { dataSource } from "@/../ormconfig";
 import { Config } from "@/types/config-service";
 import { ShareModule } from "@modules/share/share.module";
 import { FileManagementModule } from "@modules/file-management/file-management.module";
@@ -22,7 +22,7 @@ const environmentFilePath = [".env", `.env.${process.env.NODE_ENV}`];
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot(connectionCfg),
+    TypeOrmModule.forRoot(dataSource),
     LoggerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
