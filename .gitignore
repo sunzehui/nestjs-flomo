@@ -399,3 +399,5 @@ dist
 
 ormconfig.json
 uploads
+
+src/core/sql/*.db

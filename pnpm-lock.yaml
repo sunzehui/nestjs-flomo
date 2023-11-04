@@ -50,9 +50,6 @@ dependencies:
   class-validator:
     specifier: ^0.14.0
     version: 0.14.0
-  cross-env:
-    specifier: ^7.0.3
-    version: 7.0.3
   date-fns:
     specifier: ^2.30.0
     version: 2.30.0
@@ -151,6 +148,9 @@ devDependencies:
   '@typescript-eslint/parser':
     specifier: ^6.3.0
     version: 6.3.0(eslint@8.47.0)(typescript@5.1.6)
+  cross-env:
+    specifier: ^7.0.3
+    version: 7.0.3
   eslint:
     specifier: ^8.47.0
     version: 8.47.0
@@ -2204,7 +2204,7 @@ packages:
     hasBin: true
     dependencies:
       cross-spawn: 7.0.3
-    dev: false
+    dev: true
 
   /cross-spawn@5.1.0:
     resolution: {integrity: sha512-pTgQJ5KC0d2hcY8eyL1IzlBPYjTkyH72XRZPnLyKus2mBfNjQs3klqbJU2VILqZryAZUt9JOb3h/mWMy23/f5A==}
