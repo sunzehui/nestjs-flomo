@@ -4,6 +4,10 @@
 使用 nestjs + typeorm + sqlite 实现
 
 ## Install
+docker一键部署
+```bash
+docker-compose up -d
+```
 1. 安装依赖
 ```bash
 yarn install
