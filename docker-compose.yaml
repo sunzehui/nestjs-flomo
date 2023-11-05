@@ -11,8 +11,6 @@ services:
     container_name: nest-server
     # 指定与部署和运行服务相关的配置（restart: always关机或者重启docker同时重启容器）
     restart: always
-    ports:
-      - "3000:3000"
     volumes:
       - app-volume:/frontend-build/dist
 
@@ -30,5 +28,4 @@ services:
     depends_on:
       - nest-server
     environment:
-      - VITE_PROXY_URL=http://localhost:3000
       - VITE_APP_NAME=flomo 浮墨笔记演示

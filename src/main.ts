@@ -19,12 +19,6 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
   app.useGlobalPipes(new ValidationPipe());
-  // production
-  const isProduction = process.env.NODE_ENV === "production";
-  if (isProduction) {
-    app.enableCors();
-    app.setGlobalPrefix("api");
-  }
 
   const config = new DocumentBuilder()
     .setTitle("Cats example")
@@ -35,7 +29,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup("doc", app, document);
   const port = configService.get<number>("port");
-  await app.listen(port || 300);
+  await app.listen(port || 3000);
   console.log(`🤩 应用程序接口地址: ${await app.getUrl()}`);
   console.log("🚀 服务应用已经成功启动！");
   return configService;

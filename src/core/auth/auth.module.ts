@@ -13,7 +13,7 @@ import 'dotenv/config';
     UserModule,
     PassportModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRET||'',
+      secret: process.env.JWT_SECRET|| 'flomo',
       signOptions: { expiresIn: process.env.JWT_EXPIRE||'24h' },
     }),
   ],
