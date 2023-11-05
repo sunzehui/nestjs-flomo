@@ -4,10 +4,12 @@
 使用 nestjs + typeorm + sqlite 实现
 
 ## Install
-docker一键部署
+### docker一键部署
 ```bash
 docker-compose up -d
 ```
+
+### 服务器安装
 1. 安装依赖
 ```bash
 yarn install
@@ -18,9 +20,9 @@ mv ./env.example ./env
 mv ./env.development.example ./env.development
 mv ./env.production.example ./env.production
 ```
-3. 打包
+3. 编译并迁移数据库
 ```
-yarn build
+yarn migration:run
 ```
 4. 运行程序
 ```bash
