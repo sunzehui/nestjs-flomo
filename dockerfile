@@ -1,4 +1,4 @@
-FROM node:lts-alpine as frontend-build
+FROM node:lts-alpine as builder
 WORKDIR /frontend-build
 RUN sed -i "s/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g" /etc/apk/repositories \
 && apk update \ 
@@ -9,10 +9,15 @@ RUN sed -i "s/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g" /etc/apk/repositories
 && yarn install --prod \
 && yarn build \
 && rm -rf ./node_modules
-EXPOSE 80
 
 WORKDIR /backend-build
 COPY . .
 RUN yarn install --prod \
 && yarn migration:run
-CMD yarn start:prod
+
+# Make workspace with above generated files.
+FROM node:lts-alpine AS monolithic
+COPY --from=builder /frontend-build/dist /frontend-build/dist
+COPY --from=builder /backend-build /backend-build
+WORKDIR /backend-build
+CMD npm run start:prod
