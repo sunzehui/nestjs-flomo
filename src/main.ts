@@ -16,6 +16,9 @@ async function bootstrap() {
 
   // 设置/uploads目录为静态文件目录
   app.use("/uploads", express.static(resolve("uploads")));
+  if(process.env.NODE_ENV === 'preview'){
+    app.setGlobalPrefix('/api')
+  }
 
   const configService = app.get(ConfigService);
   app.useGlobalPipes(new ValidationPipe());
