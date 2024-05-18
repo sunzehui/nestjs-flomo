@@ -16,9 +16,6 @@ async function bootstrap() {
 
   // 设置/uploads目录为静态文件目录
   app.use("/uploads", express.static(resolve("uploads")));
-  if(process.env.NODE_ENV === 'preview'){
-    app.setGlobalPrefix('/api')
-  }
 
   const configService = app.get(ConfigService);
   app.useGlobalPipes(new ValidationPipe());
@@ -31,7 +28,7 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup("doc", app, document);
-  const port = configService.get<number>("PORT");
+  const port = configService.get<number>("port");
   await app.listen(port || 3000);
   console.log(`🤩 应用程序接口地址: ${await app.getUrl()}`);
   console.log("🚀 服务应用已经成功启动！");
