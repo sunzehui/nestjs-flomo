@@ -4,7 +4,6 @@ import {
   Post,
   Body,
   UseGuards,
-  Req,
   Put,
 } from "@nestjs/common";
 import { UserService } from "./user.service";
@@ -26,14 +25,9 @@ export class UserController {
     return await this.userService.register(createUserDto);
   }
 
-  @Get("hello")
-  hello(@Body() createUserDto: CreateUserDto) {
-    return "hello";
-  }
-
   @UseGuards(JwtAuthGuard)
   @Get("profile")
-  async me(@User("id") userId: string) {
+  async me(@User("id") userId: number) {
     const userInfo = await this.userService.findUser(userId);
     const dailyGrid = await this.statisticService.getGirdWithDate(userId);
     const userRecord = await this.statisticService.getUserStatistic(userId);
@@ -48,7 +42,10 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Put("profile")
-  async updateProfile(@User("id") userId, @Body() userDto: UpdateUserDto) {
+  async updateProfile(
+    @User("id") userId: number,
+    @Body() userDto: UpdateUserDto,
+  ) {
     return await this.userService.updateUser(userId, userDto);
   }
 }

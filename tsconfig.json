@@ -13,13 +13,15 @@
     "baseUrl": ".",
     "incremental": true,
     "skipLibCheck": true,
+    "typeRoots": [
+      "./node_modules/@types",
+      "./src/types"
+    ],
+    "types": [
+      "node",
+      "multer"
+    ],
     "paths": {
-      "@user/*": [
-        "src/user/*"
-      ],
-      "@auth/*": [
-        "src/auth/*"
-      ],
       "@utils/*": [
         "src/utils/*"
       ],
@@ -29,16 +31,15 @@
       "@/*": [
         "src/*"
       ]
-    },
+    }
   },
-  "typeRoots": [
-    "src/types",
-  ],
   "include": [
     "src/**/*.ts",
+    "ormconfig.ts"
   ],
   "exclude": [
     "node_modules",
+    "dist",
     "**/*.spec.ts"
   ]
 }

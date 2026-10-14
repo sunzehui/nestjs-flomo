@@ -4,14 +4,8 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
-  JoinColumn,
-  JoinTable,
   ManyToMany,
 } from "typeorm";
-import { join as lJoin } from "lodash";
-import { Transform } from "class-transformer";
-import { ConfigService } from "@nestjs/config";
 import { Injectable } from "@nestjs/common";
 import { UserEntity } from "@/core/user/entities/user.entity";
 
@@ -25,8 +19,6 @@ export class FileEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  // Add this relationship
-
   @ManyToMany(() => UserEntity, (user) => user.files)
   users: UserEntity[];
 
@@ -36,7 +28,9 @@ export class FileEntity {
   @Column()
   filePath: string;
 
-  @ManyToMany(() => ArticleEntity, (article) => article.files) // Define many-to-one relationship
+  // 关连接表（article_file）由 ArticleEntity 侧通过 @JoinTable 维护，
+  // 这里不能再声明 @JoinTable，否则 TypeORM 会报「关系两侧都有 JoinTable」
+  @ManyToMany(() => ArticleEntity, (article) => article.files)
   article: ArticleEntity[];
 
   @Column({ unique: true })

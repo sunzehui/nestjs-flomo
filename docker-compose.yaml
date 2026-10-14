@@ -1,31 +1,31 @@
-version: '3.0'
-volumes:
-  app-volume: {}
 services:
   nest-server:
-    # 用来指定一个包含Dockerfile文件的路径。一般是当前目录. 。Fig将build并生成一个随机命名的镜像
     build: .
-    # 镜像
     image: nest-server:v0.1
-    # 容器名称
     container_name: nest-server
-    # 指定与部署和运行服务相关的配置（restart: always关机或者重启docker同时重启容器）
     restart: always
+    # 敏感配置通过 .env 注入，不打进镜像
+    env_file:
+      - .env
+    expose:
+      - "3000"
     volumes:
-      - app-volume:/frontend-build/dist
+      # 上传的图片与 sqlite 数据库需要持久化，否则容器重建即丢数据
+      - uploads-volume:/app/uploads
+      - db-volume:/app/src/core/sql
 
   website:
+    build: ../vue3-flomo
+    image: flomo-website:v0.1
     container_name: website
-    image: daocloud.io/library/nginx:latest # 使用官方镜像
     restart: on-failure
     ports:
       - "80:80"
-    # 挂载目录
     volumes:
-      - ./vhosts.conf:/etc/nginx/conf.d/default.conf
-      - app-volume:/usr/share/nginx/html
-    privileged: true # 这个必须要，解决nginx的文件调用的权限问题
+      - ./vhosts.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       - nest-server
-    environment:
-      - VITE_APP_NAME=flomo 浮墨笔记演示
+
+volumes:
+  uploads-volume: {}
+  db-volume: {}

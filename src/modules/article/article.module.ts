@@ -9,5 +9,6 @@ import { ArticleEntity } from './entities/article.entity';
   imports: [TypeOrmModule.forFeature([ArticleEntity, Tag])],
   controllers: [ArticleController],
   providers: [ArticleService],
+  exports: [ArticleService],
 })
 export class ArticleModule {}

@@ -6,6 +6,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { ShareService } from './share.service';
+import { parseId } from '@utils/id';
 
 @Controller('share')
 export class ShareController {
@@ -14,9 +15,10 @@ export class ShareController {
   @Get('/user')
   async findUserShared(@Query('user_id') userId: string) {
     try {
-      return await this.shareService.findUserShared(userId);
+      return await this.shareService.findUserShared(parseId(userId));
     } catch (error) {
-      throw new BadRequestException(error.message);
+      if (error instanceof BadRequestException) throw error;
+      throw new BadRequestException((error as Error).message);
     }
   }
 }

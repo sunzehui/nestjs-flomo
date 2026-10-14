@@ -2,7 +2,6 @@ import {
   Controller,
   Get,
   HttpCode,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { AppService } from './app.service';
 

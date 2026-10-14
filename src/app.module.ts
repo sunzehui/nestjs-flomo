@@ -7,7 +7,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { UserModule } from "@/core/user/user.module";
 import { AuthModule } from "@/core/auth/auth.module";
 import { ArticleModule } from "@modules/article/article.module";
-import { ConfigModule, ConfigService } from "@nestjs/config";
+import { ConfigModule } from "@nestjs/config";
 import { LoggerErrorInterceptor, LoggerModule } from "nestjs-pino";
 import { pinoHttpOption } from "@/core/logger.config";
 import { StatisticModule } from "@modules/statistic/statistic.module";
@@ -16,24 +16,23 @@ import { Config } from "@/types/config-service";
 import { ShareModule } from "@modules/share/share.module";
 import { FileManagementModule } from "@modules/file-management/file-management.module";
 import { APP_INTERCEPTOR } from "@nestjs/core";
-import { TransformInterceptor } from "./core/interceptor/transform.interceptor.js";
+import { TransformInterceptor } from "@/core/interceptor/transform.interceptor";
 
 const environmentFilePath = [".env", `.env.${process.env.NODE_ENV}`];
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot(dataSource),
-    LoggerModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: async (configService: ConfigService<Config>) => {
-        const environment = configService.get<Config["NODE_ENV"]>("NODE_ENV");
-        return { pinoHttp: pinoHttpOption(environment) };
-      },
-    }),
+    // ConfigModule 必须最先注册，保证后续模块能读到 .env 中的变量
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: environmentFilePath,
+    }),
+    TypeOrmModule.forRoot(dataSource),
+    LoggerModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: () => {
+        return { pinoHttp: pinoHttpOption(process.env.NODE_ENV as Config["NODE_ENV"]) };
+      },
     }),
     ScheduleModule.forRoot(),
     TagModule,

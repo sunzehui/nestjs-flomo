@@ -1,4 +1,4 @@
-import { IsArray, IsString, MaxLength } from 'class-validator';
+import { IsArray, IsString } from 'class-validator';
 
 export class CreateArticleDto {
   @IsString()

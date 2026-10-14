@@ -9,9 +9,6 @@ import {
   Query,
   BadRequestException,
   UseGuards,
-  ParseFilePipe,
-  MaxFileSizeValidator,
-  FileTypeValidator,
   ParseFilePipeBuilder,
   HttpStatus,
 } from "@nestjs/common";
@@ -21,13 +18,14 @@ import { CreateFileDto } from "./dto/create-file.dto";
 import { calculateMD5 } from "@utils/file";
 import { User } from "@/core/user/user.decorator";
 import { JwtAuthGuard } from "@/core/auth/guards/jwt-auth.guard";
-import { join as lJoin } from "lodash";
 import { ConfigService } from "@nestjs/config";
 import { ApiResponse, ApiTags } from "@nestjs/swagger";
 import type { Express } from "express";
+import { parseId } from "@utils/id";
 
 @ApiTags("文件管理")
 @Controller("files")
+@UseGuards(JwtAuthGuard)
 export class FileManagementController {
   constructor(
     private readonly fileManagementService: FileManagementService,
@@ -39,27 +37,14 @@ export class FileManagementController {
     status: 200,
     description: "获取文件列表",
   })
-  async getUserFiles(@Query("userId") userId: string) {
-    if (!userId) {
-      const fileList = await this.fileManagementService.getUsersFileList();
-      return { files: fileList };
-    }
+  async getUserFiles(@User("id") userId: number) {
+    // 只允许查看自己的文件
     const fileList = await this.fileManagementService.getUsersFileList(userId);
     return { files: fileList };
   }
 
-  @Get(":fileId")
-  async getFileById(
-    @Param("userId") userId: string,
-    @Param("fileId") fileId: number,
-  ) {
-    const file = await this.fileManagementService.getFileById(userId, fileId);
-    return { file };
-  }
-
   @Get("is-exist/:md5")
-  @UseGuards(JwtAuthGuard)
-  async isFileExist(@Param("md5") md5: string, @User("id") userId: string) {
+  async isFileExist(@Param("md5") md5: string, @User("id") userId: number) {
     try {
       const file = await this.fileManagementService.isFileExist(md5);
       if (!file) {
@@ -68,12 +53,23 @@ export class FileManagementController {
       // 如果存在该文件，则存储一条用户文件记录
       return await this.fileManagementService.saveUserFileQuickly(userId, file);
     } catch (error) {
-      throw new BadRequestException(error.message);
+      throw new BadRequestException((error as Error).message);
     }
   }
 
+  @Get(":fileId")
+  async getFileById(
+    @Param("fileId") fileId: string,
+    @User("id") userId: number,
+  ) {
+    const file = await this.fileManagementService.getFileById(
+      userId,
+      parseId(fileId),
+    );
+    return { file };
+  }
+
   @Post()
-  @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor("file"))
   async uploadFile(
     @UploadedFile(
@@ -89,13 +85,13 @@ export class FileManagementController {
         }),
     )
     file: Express.Multer.File,
-    @User("id") userId: string,
+    @User("id") userId: number,
   ) {
     try {
       const fileExtension = file.originalname.split(".").pop();
       const fileMD5 = calculateMD5(file.buffer);
       const createFileDto: CreateFileDto = {
-        userId: userId.toString(),
+        userId,
         filename: `${fileMD5}.${fileExtension}`,
         md5: fileMD5,
         file,
@@ -103,19 +99,22 @@ export class FileManagementController {
       const uploadResult = await this.fileManagementService.uploadFile(
         createFileDto,
       );
-      const imgServerUrl = this.configService.get("SERVER_URL", '/');
+      const imgServerUrl = (this.configService.get<string>("SERVER_URL") ?? "").replace(
+        /\/+$/,
+        "",
+      );
       return {
         ...uploadResult,
-        url: lJoin([imgServerUrl, uploadResult.filePath], "/"),
+        url: `${imgServerUrl}/${uploadResult.filePath.replace(/^\/+/, "")}`,
       };
     } catch (error) {
-      throw new BadRequestException(error.message);
+      throw new BadRequestException((error as Error).message);
     }
   }
 
   @Delete()
   async deleteFile(
-    @Query("userId") userId: string,
+    @User("id") userId: number,
     @Query("filename") filename: string,
   ) {
     await this.fileManagementService.deleteFile(userId, filename);

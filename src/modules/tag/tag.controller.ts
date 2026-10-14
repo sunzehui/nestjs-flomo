@@ -15,36 +15,36 @@ import { CreateTagDto } from './pojo/create-tag.dto';
 import { UpdateTagDto } from './pojo/update-tag.dto';
 
 @Controller('tag')
+@UseGuards(JwtAuthGuard)
 export class TagController {
   constructor(private readonly tagService: TagService) {}
 
-  @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Body() createTagDto: CreateTagDto, @User('id') userId) {
+  create(@Body() createTagDto: CreateTagDto, @User('id') userId: number) {
     return this.tagService.create(createTagDto, userId);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get()
-  findAll(@User('id') userId) {
+  findAll(@User('id') userId: number) {
     return this.tagService.findAll(userId);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.tagService.findOne(id);
+  findOne(@Param('id') id: string, @User('id') userId: number) {
+    return this.tagService.findOne(id, userId);
   }
 
   @Patch(':content')
   update(
     @Param('content') content: string,
     @Body() updateTagDto: UpdateTagDto,
+    @User('id') userId: number,
   ) {
-    return this.tagService.update(content, updateTagDto);
+    return this.tagService.update(userId, content, updateTagDto);
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string) {
-    return this.tagService.remove(id);
+  async remove(@Param('id') id: string, @User('id') userId: number) {
+    return this.tagService.remove(id, userId);
   }
 }

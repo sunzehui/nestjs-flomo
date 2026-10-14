@@ -1,108 +1,112 @@
-import { ArticleEntity } from "../article/entities/article.entity";
-import { UserService } from "@/core/user/user.service";
 import {
   Injectable,
   NotAcceptableException,
   UnprocessableEntityException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { QueryFailedError, Repository } from "typeorm";
 import { CreateTagDto } from "./pojo/create-tag.dto";
 import { UpdateTagDto } from "./pojo/update-tag.dto";
 import { Tag } from "./entities/tag.entity";
-import * as _ from "lodash";
-import { UserEntity } from "@/core/user/entities/user.entity";
+import { parseId } from "@utils/id";
+import { uniqByContent } from "@utils/collection";
 
 @Injectable()
 export class TagService {
   constructor(
     @InjectRepository(Tag)
     private repository: Repository<Tag>,
-    @InjectRepository(ArticleEntity)
-    private articleRepository: Repository<ArticleEntity>,
-    private userService: UserService,
   ) {}
 
-  rawCreate(createTagDto: CreateTagDto) {
-    return this.repository.create(createTagDto);
-  }
-
-  async create(createTagDto: CreateTagDto, userId: string) {
-    const user = new UserEntity({ id: userId });
-    return this.repository.create({ ...createTagDto, user });
-  }
-
-  // 整理出加入文章表关联的格式
-  async createTags(tagDto: CreateTagDto[] | CreateTagDto[][]) {
-    const tagDtoArray = tagDto.flat(2);
-    const tagsDO = _.map(tagDtoArray, (tag) => _.omit(tag, "id"));
-    const tagEntities = tagsDO.map((tagDO) => this.repository.create(tagDO));
-    await this.repository.save(tagEntities);
-    return tagEntities;
-  }
-
-  async findOrCreate(tag: string) {
-    let tagEntity = await this.repository.findOne({
-      where: { content: tag },
+  /** 创建标签；若该用户下已存在（含软删除）则复用/恢复 */
+  async create(createTagDto: CreateTagDto, userId: number) {
+    const exist = await this.repository.findOne({
+      where: { content: createTagDto.content, user: { id: userId } },
+      withDeleted: true,
     });
-    // 不存在创建，存在返回
+    if (exist) {
+      if (exist.deleteTime) await this.repository.restore(parseId(exist.id));
+      return await this.repository.findOneBy({ id: parseId(exist.id) });
+    }
+    return await this.repository.save(
+      this.repository.create({ ...createTagDto, user: { id: userId } }),
+    );
+  }
+
+  /** 按用户维度查找或创建标签 */
+  async findOrCreate(content: string, userId: number) {
+    let tagEntity = await this.repository.findOne({
+      where: { content, user: { id: userId } },
+      withDeleted: true,
+    });
     if (!tagEntity) {
-      tagEntity = await this.repository.save({ content: tag });
+      tagEntity = await this.repository.save(
+        this.repository.create({ content, user: { id: userId } }),
+      );
     }
     return tagEntity;
   }
 
-  async insert(tags: string[]) {
+  async insert(tags: string[], userId: number) {
     const tagEntities: Tag[] = [];
     for (const tag of tags) {
-      // 查找标签是否存在，最终必返回标签实体
-      const tagEntity = await this.findOrCreate(tag);
-      await this.repository.save(tagEntity);
-      tagEntities.push(tagEntity);
+      tagEntities.push(await this.findOrCreate(tag, userId));
     }
-    return tagEntities;
+    return uniqByContent(tagEntities);
   }
 
-  async findAll(userId: string) {
-    // 去查该用户下的标签
-    const q = this.repository
-      .createQueryBuilder("tag")
-      .where("article.userId = :userId", { userId })
-      .andWhere("tag.deleteTime IS NULL")
-      .andWhere("article.deleteTime IS NULL")
-      .leftJoinAndSelect("tag.articles", "article")
-      .getMany();
-    return await q;
+  /** 只返回当前用户自己的标签（@DeleteDateColumn 已自动过滤软删除） */
+  findAll(userId: number) {
+    return this.repository.find({
+      where: { user: { id: userId } },
+      order: { content: "ASC" },
+    });
   }
 
-  upsert(article, tagEntity: Tag[]) {
-    return this.repository.upsert({ ...tagEntity, articles: [article] }, [
-      "id",
-    ]);
-  }
-
-  findOne(id: string) {
-    return this.repository.findOneBy({ id });
-  }
-
-  async update(content: string, updateTagDto: UpdateTagDto) {
-    const updateStatus = await this.repository.update(
-      { content },
-      updateTagDto,
-    );
-    if (updateStatus.affected === 0) {
-      throw new NotAcceptableException("更新失败");
-    }
-    return {
-      code: 0,
-    };
-  }
-
-  async remove(id: string) {
-    const tag = await this.repository.findOneBy({ id });
-    if (_.isEmpty(tag) || tag === null) {
+  async findOne(id: string | number, userId: number) {
+    const tag = await this.repository.findOne({
+      where: { id: parseId(id), user: { id: userId } },
+    });
+    if (!tag) {
       throw new UnprocessableEntityException("标签不存在！");
     }
+    return tag;
+  }
+
+  async update(
+    userId: number,
+    oldContent: string,
+    updateTagDto: UpdateTagDto,
+  ) {
+    // 必须限定在当前用户名下，避免跨用户改名/置顶
+    const tag = await this.repository.findOne({
+      where: { content: oldContent, user: { id: userId } },
+    });
+    if (!tag) {
+      throw new UnprocessableEntityException("标签不存在！");
+    }
+
+    try {
+      const updateStatus = await this.repository.update(
+        { id: tag.id },
+        updateTagDto,
+      );
+      if (updateStatus.affected === 0) {
+        throw new NotAcceptableException("更新失败");
+      }
+    } catch (error) {
+      // 同用户下已存在同名标签时，唯一索引会报错
+      if (error instanceof QueryFailedError) {
+        throw new NotAcceptableException("同名标签已存在");
+      }
+      throw error;
+    }
+
+    return { code: 0 };
+  }
+
+  async remove(id: string | number, userId: number) {
+    const tag = await this.findOne(id, userId);
     return this.repository.softRemove(tag);
   }
 }

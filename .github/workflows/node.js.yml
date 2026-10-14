@@ -1,7 +1,4 @@
-# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
-
-name: Node.js CI
+name: CI
 
 on:
   push:
@@ -11,11 +8,20 @@ on:
 
 jobs:
   build:
-    runs-on: self-hosted
-    container: node:18
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - run: | 
-          npm i
-          npm run build --if-present
-          pm2 restart flomo-server
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Build
+        run: npm run build
+        env:
+          # 构建期只需要通过类型检查，不需要真实密钥
+          JWT_SECRET: ci-placeholder-secret
+      - name: Lint
+        run: npm run lint
+        continue-on-error: true

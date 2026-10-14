@@ -1,13 +1,11 @@
-import { Between, IsNull } from "typeorm";
-import { subDays, addDays, format, parseISO } from "date-fns";
+import { Between, IsNull, Repository } from "typeorm";
+import { subDays, addDays } from "date-fns";
 
 import { Tag } from "@modules/tag/entities/tag.entity";
 import { ArticleEntity } from "@modules/article/entities/article.entity";
 import { UserEntity } from "@/core/user/entities/user.entity";
-import { Injectable } from "@nestjs/common";
-import { Repository } from "typeorm";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import * as _ from "lodash";
 import { daysPassedSince, formatDate } from "@utils/date";
 
 @Injectable()
@@ -21,7 +19,7 @@ export class StatisticService {
     private readonly userRepository: Repository<UserEntity>,
   ) {}
 
-  async getUserStatistic(userId: string) {
+  async getUserStatistic(userId: number) {
     const tagCount = await this.tagRepository.countBy({
       user: { id: userId },
     });
@@ -30,7 +28,7 @@ export class StatisticService {
       deleteTime: IsNull(),
     });
     const userEntity = await this.userRepository.findOneBy({ id: userId });
-    if (!userEntity) throw new Error("用户不存在");
+    if (!userEntity) throw new NotFoundException("用户不存在");
     // 用户注册时间-当前时间
     const day = daysPassedSince(new Date(userEntity.createTime));
     return {
@@ -39,30 +37,29 @@ export class StatisticService {
       day: day > 0 ? day : 1,
     };
   }
-  async getGirdWithDate(userId: string) {
+
+  /** 返回最近 12 周的热力图数据：{ 'yyyy-MM-dd': 文章数 } */
+  async getGirdWithDate(userId: number) {
     const DateRange = (date: Date) =>
       Between(subDays(date, 78), addDays(date, 5));
     // 时间在区间范围内的文章数量
 
-    const StatisticList = await this.articleRepository
+    const statisticList = await this.articleRepository
       .createQueryBuilder("article")
-      .groupBy("DATE(createTime)")
+      .select("article.createTime", "createTime")
+      .addSelect("count(article.id)", "count")
       .where({
         createTime: DateRange(new Date()),
         user: { id: userId },
+        deleteTime: IsNull(),
       })
-      .select("article.*")
-      .addSelect("count(article.id)", "count")
-      .getRawMany();
+      .groupBy("DATE(article.createTime)")
+      .getRawMany<{ createTime: string; count: string }>();
 
-    return _.reduce(
-      StatisticList,
-      (accumulator, item) => {
-        const date = formatDate(item.createTime);
-        
-        return _.assign(accumulator, { [date]: _.toNumber(item.count) });
-      },
-      {},
-    );
+    const grid: Record<string, number> = {};
+    for (const item of statisticList) {
+      grid[formatDate(item.createTime)] = Number(item.count);
+    }
+    return grid;
   }
 }

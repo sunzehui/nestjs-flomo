@@ -3,9 +3,8 @@ import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { LoginUserDto } from "../user/dto/login-user.dto";
 import { UserService } from "../user/user.service";
-import * as _ from "lodash";
 import * as bcrypt from "bcryptjs";
-import { UserEntity } from "../user/entities/user.entity.js";
+import { UserEntity } from "../user/entities/user.entity";
 
 @Injectable()
 export class AuthService {
@@ -17,7 +16,7 @@ export class AuthService {
   async validateUser(loginUserDto: LoginUserDto) {
     const username = loginUserDto.username;
     const password = loginUserDto.password;
-    if (_.isEmpty(username) || _.isEmpty(password)) {
+    if (!username || !password) {
       throw new UnauthorizedException("用户名或密码不能为空");
     }
     const user = await this.userService.findLoginUser(username);

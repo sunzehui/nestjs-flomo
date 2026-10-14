@@ -1,4 +1,3 @@
-import { UserStatusDTO } from "../user/dto/user-status.dto";
 import { LocalAuthGuard } from "./guards/local-auth.guard";
 import { AuthService } from "./auth.service";
 
@@ -8,7 +7,6 @@ import {
   UseGuards,
   Req,
   HttpCode,
-  Body,
 } from "@nestjs/common";
 import { Request } from "express";
 
@@ -20,11 +18,9 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post("login")
   async login(@Req() request: Request) {
-    if (!request.user) return false;
-    const isLogin = await this.authService.login(request.user);
-    if (isLogin.token) {
-      await this.authService.recordLogin(request.user);
-    }
+    // LocalAuthGuard 已保证走到这里时 request.user 必然存在
+    const isLogin = await this.authService.login(request.user!);
+    await this.authService.recordLogin(request.user!);
     return isLogin;
   }
 }

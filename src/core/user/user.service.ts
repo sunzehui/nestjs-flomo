@@ -1,11 +1,8 @@
-import { HttpStatus, Injectable } from "@nestjs/common";
-import { HttpException } from "@nestjs/common";
+import { HttpStatus, Injectable, HttpException } from "@nestjs/common";
 import { CreateUserDto } from "./dto/create-user.dto";
-import * as _ from "lodash";
 import { InjectRepository } from "@nestjs/typeorm";
 import { UserEntity } from "./entities/user.entity";
 import { QueryFailedError, Repository } from "typeorm";
-import { ResultData } from "@utils/result";
 import { UpdateUserDto } from "@/core/user/dto/update-user.dto";
 
 @Injectable()
@@ -15,7 +12,7 @@ export class UserService {
     private repository: Repository<UserEntity>,
   ) {}
 
-  async findUser(id: UserEntity["id"]) {
+  async findUser(id: number) {
     return await this.repository.findOneBy({ id });
   }
 
@@ -32,13 +29,11 @@ export class UserService {
       last_login: "",
     };
     try {
-      const user = this.repository.create(userDO);
+      const user = await this.repository.create(userDO);
       const result = await this.repository.save(user);
-      if (_.isEmpty(result)) {
-        return user;
-      }
-
-      return ResultData.ok(result);
+      // 统一响应结构由全局拦截器负责，此处只返回安全字段（去掉密码）
+      const { password: _password, ...safeUser } = result;
+      return safeUser;
     } catch (error) {
       throw error instanceof QueryFailedError
         ? new HttpException("用户名已存在", HttpStatus.BAD_REQUEST)
@@ -46,7 +41,7 @@ export class UserService {
     }
   }
 
-  async recordLogin(userId: string) {
+  async recordLogin(userId: number) {
     const last_login = new Date().toISOString();
 
     return await this.repository.update(userId, {
@@ -60,13 +55,14 @@ export class UserService {
       select: ["id", "username", "password", "nickname", "last_login"],
     });
   }
-  async updateUser(userId: string, updateUserDto: UpdateUserDto) {
+
+  async updateUser(userId: number, updateUserDto: UpdateUserDto) {
     const userDo = {
       nickname: updateUserDto.nickname,
     };
     const res = (await this.repository.update({ id: userId }, userDo)) as {
       affected: number;
     };
-    return res.affected >= 0;
+    return res.affected > 0;
   }
 }

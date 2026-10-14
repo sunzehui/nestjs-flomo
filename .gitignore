@@ -392,12 +392,17 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-=======
 # Local
-# .env
+# 环境变量文件包含密钥，必须忽略（保留模板文件）
+.env
+.env.*
+!.env.example
+!.env.development.example
+!.env.production.example
 dist
 
 ormconfig.json
 uploads
 
 src/core/sql/*.db
+*.log

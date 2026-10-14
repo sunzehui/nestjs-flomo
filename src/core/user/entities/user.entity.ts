@@ -19,7 +19,7 @@ export class UserEntity {
     Object.assign(this, user);
   }
   @PrimaryGeneratedColumn()
-  id: string;
+  id: number;
 
   @Column({ unique: true, type: 'varchar' })
   username: string;

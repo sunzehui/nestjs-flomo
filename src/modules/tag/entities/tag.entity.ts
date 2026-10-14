@@ -8,15 +8,17 @@ import {
   DeleteDateColumn,
   Index,
   ManyToOne,
+  JoinColumn,
 } from "typeorm";
 
 @Entity()
+// 标签名只在「单个用户」范围内唯一，避免不同用户互相占用同名标签
+@Index(["content", "userId"], { unique: true })
 export class Tag {
   @PrimaryGeneratedColumn()
-  id?: string;
+  id: number;
 
   @Column({ type: "varchar", charset: "utf8mb4" })
-  @Index({ unique: true })
   content: string;
 
   @Column({ default: false })
@@ -30,6 +32,11 @@ export class Tag {
   })
   deleteTime: Date | null;
 
+  @Index()
+  @Column({ nullable: true })
+  userId: number;
+
   @ManyToOne(() => UserEntity, (user) => user.id)
+  @JoinColumn({ name: "userId" })
   user: UserEntity;
 }

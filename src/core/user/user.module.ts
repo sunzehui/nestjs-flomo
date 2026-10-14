@@ -3,16 +3,12 @@ import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { UserEntity } from './entities/user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { StatisticService } from '@modules/statistic/statistic.service';
-import { ArticleEntity } from '@modules/article/entities/article.entity';
-import { Tag } from '@modules/tag/entities/tag.entity';
+import { StatisticModule } from '@modules/statistic/statistic.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([UserEntity, UserEntity, ArticleEntity, Tag]),
-  ],
+  imports: [TypeOrmModule.forFeature([UserEntity]), StatisticModule],
   controllers: [UserController],
-  providers: [UserService, StatisticService],
+  providers: [UserService],
   exports: [UserService],
 })
 export class UserModule {}

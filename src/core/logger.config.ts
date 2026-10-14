@@ -14,10 +14,10 @@ export function pinoHttpOption(
       err: 'error:',
       responseTime: 'time(ms)',
     },
-    customLogLevel(_: Request, res: Response) {
-      if (environmentMode === 'production') {
-        return 'silent';
-      }
+    customLogLevel(_: Request, res: Response, error?: Error) {
+      // 5xx 或抛错时记为 error；其余按状态码映射。
+      // 注意：生产环境同样需要请求日志，不能再返回 'silent'。
+      if (error || res.statusCode >= 500) return 'error';
       return getLogLevel(res.statusCode);
     },
     serializers: {
@@ -28,7 +28,7 @@ export function pinoHttpOption(
           url: _request.url,
           params: _request.raw.params,
           query: _request.raw.query,
-          body: _request.raw.body,
+          // 注意：不要记录 body，登录接口会泄露明文密码
         };
       },
       res(_res: Response) {

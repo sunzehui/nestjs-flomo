@@ -21,7 +21,7 @@ export class ArticleEntity {
   }
   @Index()
   @PrimaryGeneratedColumn()
-  id: string;
+  id: number;
 
   @Column({ type: "text", charset: "utf8mb4", default: "" })
   content: string;

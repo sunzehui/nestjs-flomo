@@ -6,15 +6,30 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { UserModule } from '../user/user.module';
 import { AuthController } from './auth.controller';
-import 'dotenv/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
     UserModule,
     PassportModule,
-    JwtModule.register({
-      secret: process.env.JWT_SECRET|| 'flomo',
-      signOptions: { expiresIn: process.env.JWT_EXPIRE||'24h' },
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        const secret = configService.get<string>('JWT_SECRET');
+        // 不再提供弱默认值：缺失时直接启动失败，避免线上用可猜的密钥签发 token
+        if (!secret) {
+          throw new Error(
+            '缺少环境变量 JWT_SECRET，请在 .env 中配置后重新启动服务',
+          );
+        }
+        return {
+          secret,
+          signOptions: {
+            expiresIn: configService.get<string>('JWT_EXPIRE') || '24h',
+          },
+        };
+      },
     }),
   ],
   controllers: [AuthController],

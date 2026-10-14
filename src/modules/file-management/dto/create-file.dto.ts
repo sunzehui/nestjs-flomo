@@ -1,9 +1,8 @@
-import { Type } from 'class-transformer';
-import { IsDefined, IsString } from 'class-validator';
+import { IsDefined, IsNumber, IsString } from 'class-validator';
 
 export class CreateFileDto {
-  @IsString()
-  userId: string;
+  @IsNumber()
+  userId: number;
 
   @IsString()
   filename: string;
