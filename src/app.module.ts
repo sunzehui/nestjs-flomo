@@ -11,11 +11,14 @@ import { ConfigModule } from "@nestjs/config";
 import { LoggerErrorInterceptor, LoggerModule } from "nestjs-pino";
 import { pinoHttpOption } from "@/core/logger.config";
 import { StatisticModule } from "@modules/statistic/statistic.module";
+import { ReviewModule } from "@modules/review/review.module";
+import { DataModule } from "@modules/data/data.module";
+import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
 import { dataSource } from "@/../ormconfig";
 import { Config } from "@/types/config-service";
 import { ShareModule } from "@modules/share/share.module";
 import { FileManagementModule } from "@modules/file-management/file-management.module";
-import { APP_INTERCEPTOR } from "@nestjs/core";
+import { APP_GUARD, APP_INTERCEPTOR } from "@nestjs/core";
 import { TransformInterceptor } from "@/core/interceptor/transform.interceptor";
 
 const environmentFilePath = [".env", `.env.${process.env.NODE_ENV}`];
@@ -35,6 +38,8 @@ const environmentFilePath = [".env", `.env.${process.env.NODE_ENV}`];
       },
     }),
     ScheduleModule.forRoot(),
+    // 基础限流：单 IP 每分钟 120 次
+    ThrottlerModule.forRoot([{ ttl: 60000, limit: 120 }]),
     TagModule,
     UserModule,
     AuthModule,
@@ -42,10 +47,16 @@ const environmentFilePath = [".env", `.env.${process.env.NODE_ENV}`];
     StatisticModule,
     ShareModule,
     FileManagementModule,
+    ReviewModule,
+    DataModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
     {
       provide: APP_INTERCEPTOR,
       useClass: TransformInterceptor,

@@ -12,6 +12,7 @@ import { JwtAuthGuard } from "@/core/auth/guards/jwt-auth.guard";
 import { User } from "@/core/user/user.decorator";
 import { StatisticService } from "@modules/statistic/statistic.service";
 import { UpdateUserDto } from "@/core/user/dto/update-user.dto";
+import { ChangePasswordDto } from "@/core/user/dto/change-password.dto";
 
 @Controller("user")
 export class UserController {
@@ -47,5 +48,18 @@ export class UserController {
     @Body() userDto: UpdateUserDto,
   ) {
     return await this.userService.updateUser(userId, userDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Put("password")
+  async changePassword(
+    @User("id") userId: number,
+    @Body() body: ChangePasswordDto,
+  ) {
+    return await this.userService.changePassword(
+      userId,
+      body.oldPassword,
+      body.newPassword,
+    );
   }
 }

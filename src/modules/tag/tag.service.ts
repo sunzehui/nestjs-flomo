@@ -87,9 +87,25 @@ export class TagService {
     }
 
     try {
+      const payload: UpdateTagDto = { ...updateTagDto };
+      // parentId 需要额外校验：不能指向自己，父标签必须属于同一用户
+      if (payload.parentId !== undefined && payload.parentId !== null) {
+        const parentId = parseId(payload.parentId);
+        if (parentId === Number(tag.id)) {
+          throw new NotAcceptableException("不能把标签设为自己的子标签");
+        }
+        const parent = await this.repository.findOne({
+          where: { id: parentId, user: { id: userId } },
+        });
+        if (!parent) {
+          throw new NotAcceptableException("父标签不存在");
+        }
+        payload.parentId = parentId;
+      }
+
       const updateStatus = await this.repository.update(
         { id: tag.id },
-        updateTagDto,
+        payload,
       );
       if (updateStatus.affected === 0) {
         throw new NotAcceptableException("更新失败");

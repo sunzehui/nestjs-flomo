@@ -36,6 +36,11 @@ export class Tag {
   @Column({ nullable: true })
   userId: number;
 
+  /** 父标签 id，用于标签树/分组；null 表示顶层标签 */
+  @Index()
+  @Column({ nullable: true, default: null })
+  parentId: number | null;
+
   @ManyToOne(() => UserEntity, (user) => user.id)
   @JoinColumn({ name: "userId" })
   user: UserEntity;

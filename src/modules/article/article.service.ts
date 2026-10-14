@@ -1,12 +1,4 @@
-import {
-  FindOptionsWhere,
-  In,
-  IsNull,
-  LessThan,
-  Like,
-  Not,
-  Repository,
-} from "typeorm";
+import { In, LessThan, Repository } from "typeorm";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import {
   ForbiddenException,
@@ -20,7 +12,12 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Tag } from "@modules/tag/entities/tag.entity";
 import { FileEntity } from "@modules/file-management/entities/file.entity";
 import { ConfigService } from "@nestjs/config";
-import { FindArticleQuery } from "./dto/find-article.dto.js";
+import {
+  DEFAULT_PAGE_SIZE,
+  FindArticleQuery,
+  MAX_PAGE_SIZE,
+  TagFilterMode,
+} from "./dto/find-article.dto.js";
 import { sanitizeHtml } from "@utils/sanitize";
 import { parseId } from "@utils/id";
 import { uniqByContent } from "@utils/collection";
@@ -90,25 +87,114 @@ export class ArticleService {
   }
 
   /**
-   * 查询文章列表。
+   * 查询文章列表（分页）。
    * 注意：user 过滤是必选的，历史上该参数缺省会导致返回全库数据。
    */
-  async findAll(user: number, _query?: Partial<FindArticleQuery>) {
-    const query: FindOptionsWhere<ArticleEntity> = {
-      user: { id: user },
-      deleteTime: _query?.deleted ? Not(IsNull()) : IsNull(),
-    };
-    if (_query?.tag) query.tags = { content: _query.tag, user: { id: user } };
-    if (_query?.content) query.content = Like(`%${_query.content}%`);
+  async findAll(user: number, query: FindArticleQuery = {}) {
+    const page = Math.max(1, Number(query.page) || 1);
+    const pageSize = Math.min(
+      MAX_PAGE_SIZE,
+      Math.max(1, Number(query.pageSize) || DEFAULT_PAGE_SIZE),
+    );
 
-    const articleList = await this.repository.find({
-      where: query,
-      order: { updateTime: "DESC" },
-      relations: ["user", "tags", "files"],
-      withDeleted: true,
+    // content 保持整串短语匹配（向后兼容），keywords 支持多词 AND
+    const phrases = query.content?.trim() ? [query.content.trim()] : [];
+    const keywords = (query.keywords ?? "")
+      .split(/[\s,]+/)
+      .map((word) => word.trim())
+      .filter(Boolean);
+
+    // tag 为单标签兼容字段，tags 为逗号分隔的多标签
+    const tagList = Array.from(
+      new Set(
+        [query.tag ?? "", ...(query.tags ?? "").split(",")]
+          .map((item) => item.trim())
+          .filter(Boolean),
+      ),
+    );
+    const tagMode: TagFilterMode = query.tagMode ?? "or";
+
+    const qb = this.repository
+      .createQueryBuilder("article")
+      .leftJoinAndSelect("article.tags", "tag")
+      .leftJoinAndSelect("article.files", "file")
+      .leftJoinAndSelect("article.user", "owner")
+      .withDeleted()
+      .where("owner.id = :userId", { userId: user });
+
+    if (query.deleted) {
+      qb.andWhere("article.deleteTime IS NOT NULL");
+    } else {
+      qb.andWhere("article.deleteTime IS NULL");
+    }
+
+    [...phrases, ...keywords].forEach((word, index) => {
+      qb.andWhere(`article.content LIKE :kw${index}`, {
+        [`kw${index}`]: `%${word}%`,
+      });
     });
 
-    return articleList.map((article) => this.resolveFilePath(article));
+    if (tagList.length > 0) {
+      if (tagMode === "and") {
+        tagList.forEach((content, index) => {
+          qb.andWhere(
+            `EXISTS (
+               SELECT 1 FROM article_tag at_${index}
+               INNER JOIN tag tg_${index} ON tg_${index}.id = at_${index}.tag
+               WHERE at_${index}.article = article.id
+                 AND tg_${index}.content = :tg_${index}
+                 AND tg_${index}.userId = :userId
+             )`,
+            { [`tg_${index}`]: content },
+          );
+        });
+      } else {
+        qb.andWhere(
+          `EXISTS (
+             SELECT 1 FROM article_tag at_or
+             INNER JOIN tag tg_or ON tg_or.id = at_or.tag
+             WHERE at_or.article = article.id
+               AND tg_or.content IN (:...tagList)
+               AND tg_or.userId = :userId
+           )`,
+          { tagList },
+        );
+      }
+    }
+
+    if (query.from) {
+      qb.andWhere("date(article.createTime) >= date(:from)", {
+        from: query.from,
+      });
+    }
+    if (query.to) {
+      qb.andWhere("date(article.createTime) <= date(:to)", { to: query.to });
+    }
+
+    if (query.hasImage) {
+      qb.andWhere(
+        `EXISTS (SELECT 1 FROM article_file af WHERE af.article = article.id)`,
+      );
+    }
+
+    qb.orderBy("article.is_topic", "DESC")
+      .addOrderBy(
+        "article.updateTime",
+        query.sort === "time_asc" ? "ASC" : "DESC",
+      )
+      .addOrderBy("article.id", "DESC")
+      .skip((page - 1) * pageSize)
+      .take(pageSize);
+
+    const [list, total] = await qb.getManyAndCount();
+
+    return {
+      list: list.map((article) => this.resolveFilePath(article)),
+      total,
+      page,
+      pageSize,
+      hasMore: page * pageSize < total,
+    };
   }
 
   async findOne(id: string | number, userId?: number) {
@@ -208,6 +294,55 @@ export class ArticleService {
   async remove(id: string | number, userId: number) {
     const article = await this.findOne(id, userId);
     return await this.repository.softRemove(article);
+  }
+
+  /** 显式从回收站恢复（语义比 PATCH { recycle: true } 更清晰） */
+  async restore(id: string | number, userId: number) {
+    const article = await this.findOne(id, userId);
+    article.deleteTime = null;
+    await this.repository.save(article);
+    return await this.findOneWithFilesFormat(id, userId);
+  }
+
+  /** 批量给多条 memo 加/去标签 */
+  async batchTag(
+    userId: number,
+    articleIds: Array<string | number>,
+    payload: { add?: string[]; remove?: string[] },
+  ) {
+    const ids = Array.from(new Set(articleIds.map((item) => parseId(item))));
+    if (ids.length === 0) {
+      throw new UnprocessableEntityException("请选择要操作的 memo");
+    }
+
+    const articles = await this.repository.find({
+      where: { id: In(ids), user: { id: userId } },
+      relations: ["tags"],
+      withDeleted: true,
+    });
+    // 只要有一条不属于当前用户就整体拒绝，避免越权写入
+    if (articles.length !== ids.length) {
+      throw new ForbiddenException("存在无权操作的 memo");
+    }
+
+    const addTags = await this.tagInsert(payload.add ?? [], userId);
+    const removeNames = new Set(
+      (payload.remove ?? []).map((name) => name.trim()).filter(Boolean),
+    );
+
+    for (const article of articles) {
+      const kept = (article.tags ?? []).filter(
+        (tag) => !removeNames.has(tag.content),
+      );
+      const keptNames = new Set(kept.map((tag) => tag.content));
+      article.tags = [
+        ...kept,
+        ...addTags.filter((tag) => !keptNames.has(tag.content)),
+      ];
+    }
+
+    await this.repository.save(articles);
+    return { affected: articles.length };
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_4AM) // 每天半夜4点执行一次

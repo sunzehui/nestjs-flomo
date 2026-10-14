@@ -15,6 +15,7 @@ import {
 import { ArticleService } from "./article.service";
 import { CreateArticleDto } from "./dto/create-article.dto";
 import { UpdateArticleDto } from "./dto/update-article.dto";
+import { BatchTagDto } from "./dto/batch-tag.dto";
 import { FindArticleQuery } from "./dto/find-article.dto.js";
 
 @Controller("article")
@@ -46,11 +47,23 @@ export class ArticleController {
   @Get()
   async findUserArticle(
     @User("id") user: number,
-    @Query() findQuery: Record<keyof FindArticleQuery, string>,
+    @Query() findQuery: FindArticleQuery,
   ) {
-    return await this.articleService.findAll(user, {
-      ...findQuery,
-      deleted: findQuery.deleted === "true",
+    return await this.articleService.findAll(user, findQuery);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(":id/restore")
+  async restore(@Param("id") id: string, @User("id") userId: number) {
+    return await this.articleService.restore(id, userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post("batch/tag")
+  async batchTag(@User("id") userId: number, @Body() body: BatchTagDto) {
+    return await this.articleService.batchTag(userId, body.ids, {
+      add: body.add,
+      remove: body.remove,
     });
   }
 

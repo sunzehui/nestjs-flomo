@@ -15,4 +15,10 @@ export class StatisticController {
   async grid(@User("id") userId: number) {
     return await this.statisticService.getGirdWithDate(userId);
   }
+
+  /** 洞察面板：趋势 / 标签分布 / 连续天数 */
+  @Get("overview")
+  async overview(@User("id") userId: number) {
+    return await this.statisticService.getOverview(userId);
+  }
 }
